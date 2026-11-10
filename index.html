@@ -50,10 +50,12 @@ a:focus-visible,button:focus-visible{outline:1px solid var(--magenta);outline-of
 .cab nav a:hover{color:var(--texto)}
 .cab nav a.dl{color:var(--texto)}
 
-.abertura{padding-block:clamp(32px,6vw,72px) clamp(56px,8vw,104px);text-align:center}
-.quadro{position:relative;aspect-ratio:16/9;width:100%;overflow:hidden;background:#000 url("video/hv_loop_hero_poster.jpg") center/cover no-repeat;border:1px solid var(--linha)}
-.quadro img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.lema{margin:clamp(28px,4vw,44px) 0 0;font-family:var(--f-mono);font-weight:500;font-size:clamp(14px,1.6vw,18px);letter-spacing:.42em;text-transform:uppercase;padding-left:.42em}
+/* abertura imersiva: vídeo de ponta a ponta, altura da tela menos o cabeçalho */
+.abertura{position:relative;width:100%;height:calc(100vh - var(--cab-h,64px));height:calc(100svh - var(--cab-h,64px));min-height:420px;max-height:1200px;overflow:hidden;background:#000 url("video/hv_loop_poster_hd.jpg") center/cover no-repeat;scroll-margin-top:var(--cab-h,64px)}
+.abertura video,.abertura img.fallback{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;max-width:none}
+.abertura::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(17,12,10,0) 55%,rgba(17,12,10,.55) 80%,var(--bg) 100%)}
+.lema{position:absolute;left:0;right:0;bottom:clamp(28px,6vh,64px);z-index:1;margin:0;text-align:center;font-family:var(--f-mono);font-weight:500;font-size:clamp(14px,1.6vw,18px);letter-spacing:.42em;text-transform:uppercase;padding-left:.42em;color:var(--texto);text-shadow:0 1px 18px rgba(0,0,0,.6)}
+main > .wrap > section:first-child{border-top:0}
 
 section{padding-block:clamp(64px,9vw,112px);border-top:1px solid var(--linha);scroll-margin-top:calc(var(--cab-h,64px) + env(safe-area-inset-top,0px))}
 #topo,.dl-topo,.dl-item{scroll-margin-top:calc(var(--cab-h,64px) + 16px + env(safe-area-inset-top,0px))}
@@ -140,15 +142,13 @@ footer img{height:20px;width:auto;opacity:.75}
   </div>
 </header>
 
-<main class="gutter" id="topo">
-<div class="wrap">
+<div class="abertura" id="topo">
+  <video id="loop" muted autoplay loop playsinline preload="auto" poster="video/hv_loop_poster_hd.jpg" aria-label="Loop visual oficial do HAGAVE"></video>
+  <p class="lema">After the noise</p>
+</div>
 
-  <div class="abertura">
-    <div class="quadro">
-      <img id="loop" src="video/hv_loop_hero.webp" alt="Loop visual oficial do HAGAVE" decoding="async" fetchpriority="high">
-    </div>
-    <p class="lema">After the noise</p>
-  </div>
+<main class="gutter">
+<div class="wrap">
 
   <section id="bio">
     <div class="bio">
@@ -262,9 +262,21 @@ footer img{height:20px;width:auto;opacity:.75}
     });
   });
 
-  // ---------- loop: se a animação não carregar, mantém o quadro com o poster ----------
-  var loop=document.getElementById('loop');
-  loop.addEventListener('error',function(){loop.style.display='none'});
+  // ---------- loop em vídeo (25 fps, 1080p; 720p no modo economia de dados).
+  // Se o navegador bloquear o autoplay (ex.: Modo de Pouca Energia do iPhone), troca pela animação WebP.
+  var loop=document.getElementById('loop'),trocou=false;
+  var econ=navigator.connection&&navigator.connection.saveData;
+  var hd=!econ; // alta qualidade em todos os aparelhos; 720p só no modo economia de dados
+  loop.src=hd?'video/hv_loop_1080.mp4':'video/hv_loop_720.mp4';
+  function plano(){ if(trocou)return;trocou=true;
+    var img=document.createElement('img');img.className='fallback';img.src='video/hv_loop_hero.webp';img.alt='Loop visual oficial do HAGAVE';
+    loop.replaceWith(img);window.__loopModo='webp'; }
+  function tocar(){var p=loop.play();if(p&&p.catch)p.catch(function(){plano()});}
+  loop.addEventListener('playing',function(){window.__loopModo='video'});
+  loop.addEventListener('error',plano);
+  tocar();
+  setTimeout(function(){ if(!trocou&&loop.paused){ tocar(); setTimeout(function(){ if(loop.paused)plano() },1500) } },2500);
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden&&!trocou&&loop.paused)tocar() });
 
   // ---------- downloads ----------
   var ARQUIVOS=[
