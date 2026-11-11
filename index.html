@@ -48,7 +48,21 @@ a:focus-visible,button:focus-visible{outline:1px solid var(--magenta);outline-of
 .cab nav{display:flex;gap:6px 20px;flex-wrap:wrap}
 .cab nav a{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--texto-2);transition:color .2s}
 .cab nav a:hover{color:var(--texto)}
-.cab nav a.dl{color:var(--texto)}
+.cab nav{flex:1;justify-content:flex-end}
+.grade-btn{background:none;border:1px solid var(--linha);color:var(--texto);width:38px;height:38px;display:inline-grid;place-items:center;cursor:pointer;padding:0;transition:border-color .2s}
+.grade-btn:hover{border-color:var(--texto)}
+.grade-btn svg rect{fill:none;stroke:currentColor;stroke-width:1.4}
+/* painel Downloads (só abre pelo ícone de grade) */
+dialog.painel{background:var(--bg);color:var(--texto);border:0;padding:0;margin:0;width:100%;max-width:100%;height:100%;max-height:100%;overflow:auto}
+dialog.painel::backdrop{background:rgba(0,0,0,.6)}
+.painel-topo{position:sticky;top:0;z-index:2;background:rgba(17,12,10,.94);border-bottom:1px solid var(--linha)}
+.painel-topo .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-block:14px}
+.fechar{background:none;border:1px solid var(--linha);color:var(--texto);font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:9px 14px;cursor:pointer}
+.fechar:hover{border-color:var(--texto)}
+.painel-corpo{padding-block:32px 64px}
+/* faixa em destaque */
+.faixa{border:1px solid var(--linha);margin-bottom:1px;padding:20px;display:grid;gap:14px}
+.faixa iframe{width:100%;border:0;display:block}
 
 /* abertura imersiva: vídeo de ponta a ponta, altura da tela menos o cabeçalho */
 .abertura{position:relative;width:100%;height:calc(100vh - var(--cab-h,64px));height:calc(100svh - var(--cab-h,64px));min-height:420px;max-height:1200px;overflow:hidden;background:#000 url("video/hv_loop_poster_hd.jpg") center/cover no-repeat;scroll-margin-top:var(--cab-h,64px)}
@@ -139,6 +153,7 @@ footer img{height:20px;width:auto;opacity:.75}
   .traj-topo{grid-template-columns:minmax(0,1fr)}
   .traj-video{max-width:420px;width:100%}
   .era{grid-template-columns:minmax(0,1fr)}
+  .era-fotos.clubs{--n:3 !important}
 }
 @media (max-width:520px){
   .cab nav{gap:6px 14px}
@@ -148,6 +163,7 @@ footer img{height:20px;width:auto;opacity:.75}
   .dl-grade{grid-template-columns:repeat(2,minmax(0,1fr))}
   .era-fotos{gap:8px}
 }
+@media (max-width:520px){.era-fotos.clubs{--n:2 !important}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.galeria img,.era-fotos img{transition:none}}
 </style>
 </head>
@@ -157,8 +173,9 @@ footer img{height:20px;width:auto;opacity:.75}
   <div class="wrap">
     <a class="marca" href="#topo" aria-label="HAGAVE, início"><img src="logo-hagave-branco.png" alt="HAGAVE"></a>
     <nav aria-label="Seções">
-      <a href="#bio">Bio</a><a href="#som">Som</a><a href="#fotos">Fotos</a><a href="#trajetoria">Trajetória</a><a href="#downloads" class="dl">Downloads</a><a href="#booking">Booking</a>
+      <a href="#bio">Bio</a><a href="#som">Som</a><a href="#fotos">Fotos</a><a href="#trajetoria">Trajetória</a><a href="#booking">Booking</a>
     </nav>
+    <button class="grade-btn" type="button" id="abrir-dl" aria-label="Downloads: fotos em alta" aria-haspopup="dialog" title="Downloads"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><rect x="1" y="1" width="7.5" height="7.5"/><rect x="11.5" y="1" width="7.5" height="7.5"/><rect x="1" y="11.5" width="7.5" height="7.5"/><rect x="11.5" y="11.5" width="7.5" height="7.5"/></svg></button>
   </div>
 </header>
 
@@ -204,6 +221,11 @@ footer img{height:20px;width:auto;opacity:.75}
 
   <section id="som">
     <div class="cabecalho"><h2>Som</h2></div>
+    <div class="faixa" id="faixa">
+      <span class="mono" style="color:var(--texto-2)">Faixa em destaque</span>
+      <strong style="font-size:clamp(20px,2.6vw,28px);font-weight:400">This Is America — HAGAVE</strong>
+      <iframe id="sc-player" title="HAGAVE no SoundCloud" height="166" loading="lazy" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/users/810956164&amp;color=%23c23d7a&amp;auto_play=false&amp;hide_related=true&amp;show_comments=false&amp;show_user=true&amp;show_reposts=false&amp;show_teaser=false"></iframe>
+    </div>
     <div class="links">
       <a href="https://soundcloud.com/hagavemusic" target="_blank" rel="noopener"><strong>SoundCloud</strong><span class="seta">hagavemusic ↗</span></a>
       <a href="https://www.instagram.com/hagavemusic/" target="_blank" rel="noopener"><strong>Instagram</strong><span class="seta">@hagavemusic ↗</span></a>
@@ -211,7 +233,7 @@ footer img{height:20px;width:auto;opacity:.75}
   </section>
 
   <section id="fotos">
-    <div class="cabecalho"><h2>Fotos</h2><span class="nota">Liberadas para divulgação · versões em alta na aba Downloads</span></div>
+    <div class="cabecalho"><h2>Fotos</h2><span class="nota">Liberadas para divulgação · versões em alta no ícone de grade, no topo</span></div>
     <div class="galeria">
       <figure class="g-alta"><img src="fotos/HAGAVE_01.jpg" alt="HAGAVE com fone no pescoço e óculos dourados" loading="lazy"></figure>
       <figure><img src="fotos/HAGAVE_08.jpg" alt="HAGAVE de frente, camiseta preta" loading="lazy"></figure>
@@ -235,7 +257,7 @@ footer img{height:20px;width:auto;opacity:.75}
   </section>
 
   <section id="trajetoria">
-    <div class="cabecalho"><h2>Trajetória</h2><span class="nota">Ao vivo · clubs, open airs e estúdio</span></div>
+    <div class="cabecalho"><h2>Trajetória</h2><span class="nota">Ao vivo · clubs e estúdio</span></div>
     <div class="traj-topo">
       <figure class="traj-video">
         <video id="aftermovie" controls playsinline preload="metadata" poster="video/hagave_aftermovie_poster.jpg" aria-label="Aftermovie HAGAVE ao vivo">
@@ -243,19 +265,28 @@ footer img{height:20px;width:auto;opacity:.75}
         </video>
       </figure>
       <div class="traj-texto">
-        <span class="mono" style="color:var(--texto-2)">Aftermovie · 50 s · som do set ao vivo</span>
-        <p class="citacao" style="margin:0">Do dia à noite, da cabine à pista.</p>
-        <p class="nota">Recortes reais de apresentações do HAGAVE — open air, Sun Times, ORIGINS e clubs — com o som gravado na pista.</p>
-        <a class="btn sec" href="video/hagave_aftermovie.mp4" download="HAGAVE_aftermovie.mp4">Baixar vídeo (MP4 · 11 MB)</a>
+        <span class="mono" style="color:var(--texto-2)">Aftermovie · 40 s · som do set ao vivo</span>
+        <p class="citacao" style="margin:0">Da cabine à pista.</p>
+        <p class="nota">Recortes reais de apresentações do HAGAVE, com o som gravado na pista.</p>
+        <a class="btn sec" href="video/hagave_aftermovie.mp4" download="HAGAVE_aftermovie.mp4">Baixar vídeo (MP4 · 8 MB)</a>
       </div>
     </div>
     <div class="eras">
       <div class="era">
-        <div><span class="fase">Fase 01</span><h3>Clubs</h3><p>Pistas cheias, cabelo rosa e a energia das primeiras temporadas.</p></div>
-        <div class="era-fotos" style="--n:3">
+        <div><span class="fase">Fase 01</span><h3>Clubs</h3><p>Pistas cheias, cabine à noite e a bandeira HAGAVE na frente do público.</p></div>
+        <div class="era-fotos clubs" style="--n:4">
           <figure><img src="trajetoria/HAGAVE_2022_rosa_bracos_abertos.jpg" alt="HAGAVE de braços abertos na cabine com a pista cheia ao fundo" loading="lazy"></figure>
+          <figure><img src="trajetoria/HAGAVE_club_pista_cheia.jpg" alt="Pista cheia posando com o HAGAVE, camisetas HAGAVE no público" loading="lazy"></figure>
           <figure><img src="trajetoria/HAGAVE_2022_rosa_close_pb.jpg" alt="Close em preto e branco do HAGAVE com o fone no ouvido" loading="lazy" style="object-position:70% center"></figure>
+          <figure><img src="trajetoria/HAGAVE_club_luz_vermelha.jpg" alt="HAGAVE tocando sob luz vermelha, público atrás" loading="lazy"></figure>
           <figure><img src="trajetoria/HAGAVE_2022_rosa_pista_grande.jpg" alt="HAGAVE de costas tocando para uma pista grande com luz verde" loading="lazy"></figure>
+          <figure><img src="trajetoria/HAGAVE_club_laser_azul.jpg" alt="HAGAVE na cabine com feixe de luz azul" loading="lazy"></figure>
+          <figure><img src="trajetoria/HAGAVE_club_origins_cabine_bandeira.jpg" alt="Cabine da ORIGINS com a bandeira HAGAVE" loading="lazy"></figure>
+          <figure><img src="trajetoria/HAGAVE_club_luz_verde.jpg" alt="HAGAVE na cabine sob luz verde" loading="lazy"></figure>
+          <figure><img src="trajetoria/HAGAVE_club_origins_letreiro.jpg" alt="HAGAVE tocando sob o letreiro ORIGINS" loading="lazy"></figure>
+          <figure><img src="trajetoria/HAGAVE_club_cabine_azul.jpg" alt="HAGAVE mixando com luz azul de contra" loading="lazy"></figure>
+          <figure><img src="trajetoria/HAGAVE_2024_origins_bandeira.jpg" alt="HAGAVE na cabine da ORIGINS com a bandeira HAGAVE" loading="lazy"></figure>
+          <figure><img src="trajetoria/HAGAVE_2024_laricao_pb.jpg" alt="HAGAVE sorrindo com fones no Laricão Pub, em preto e branco" loading="lazy"></figure>
         </div>
       </div>
       <div class="era">
@@ -265,32 +296,9 @@ footer img{height:20px;width:auto;opacity:.75}
           <figure><img src="trajetoria/HAGAVE_2023_estudio_oculos_preto.jpg" alt="HAGAVE ajustando os óculos em estúdio com fundo preto" loading="lazy" style="object-position:top"></figure>
         </div>
       </div>
-      <div class="era">
-        <div><span class="fase">Fase 03</span><h3>Sun Times · ORIGINS</h3><p>Open airs de dia e noites com a bandeira HAGAVE na frente da cabine.</p></div>
-        <div class="era-fotos" style="--n:3">
-          <figure><img src="trajetoria/HAGAVE_2024_suntimes_green_lounge.jpg" alt="HAGAVE tocando no Green Lounge, Sun Times, de boné e óculos amarelos" loading="lazy"></figure>
-          <figure><img src="trajetoria/HAGAVE_2024_origins_bandeira.jpg" alt="HAGAVE na cabine da ORIGINS com a bandeira HAGAVE" loading="lazy"></figure>
-          <figure><img src="trajetoria/HAGAVE_2024_laricao_pb.jpg" alt="HAGAVE sorrindo com fones no Laricão Pub, em preto e branco" loading="lazy"></figure>
-        </div>
-      </div>
-      <div class="era">
-        <div><span class="fase">Fase 04</span><h3>Open air</h3><p>Festas de dia, pista lotada em volta da cabine.</p></div>
-        <div class="era-fotos" style="--n:2">
-          <figure><img src="trajetoria/HAGAVE_2025_openair_publico.jpg" alt="HAGAVE na cabine de uma festa ao ar livre com o público ao fundo" loading="lazy"></figure>
-          <figure><img src="trajetoria/HAGAVE_2025_openair_cabine.jpg" alt="HAGAVE concentrado na cabine de uma festa ao ar livre" loading="lazy"></figure>
-        </div>
-      </div>
     </div>
   </section>
 
-  <section id="downloads">
-    <div class="cabecalho"><h2>Downloads</h2><span class="nota">Fotos em alta resolução para flyers, line-ups e imprensa</span></div>
-    <div class="dl-topo">
-      <button class="btn" type="button" id="baixar-todas" disabled>Baixar todas (.zip)</button>
-      <span class="status" id="dl-status" role="status">Preparando downloads…</span>
-    </div>
-    <div class="dl-grade" id="dl-grade"></div>
-  </section>
 
   <section id="booking">
     <div class="cabecalho"><h2>Booking</h2></div>
@@ -307,6 +315,18 @@ footer img{height:20px;width:auto;opacity:.75}
 
 </div>
 </main>
+
+<dialog class="painel" id="downloads" aria-labelledby="dl-titulo">
+  <div class="painel-topo gutter"><div class="wrap"><h2 id="dl-titulo" class="mono" style="margin:0;font-size:12px">Downloads · fotos em alta</h2><button class="fechar" type="button" id="fechar-dl">Fechar ✕</button></div></div>
+  <div class="painel-corpo gutter"><div class="wrap">
+    <p class="nota" style="margin-top:0">Fotos em alta resolução para flyers, line-ups e imprensa.</p>
+    <div class="dl-topo">
+      <button class="btn" type="button" id="baixar-todas" disabled>Baixar todas (.zip)</button>
+      <span class="status" id="dl-status" role="status">Preparando downloads…</span>
+    </div>
+    <div class="dl-grade" id="dl-grade"></div>
+  </div></div>
+</dialog>
 
 <script>
 (function(){
@@ -373,6 +393,17 @@ footer img{height:20px;width:auto;opacity:.75}
   var z=document.createElement("a");z.className=todas.className;z.id="baixar-todas";z.textContent="Baixar todas (.zip · 14 MB)";z.href="HAGAVE_presskit_fotos.zip";z.setAttribute("download","HAGAVE_presskit_fotos.zip");
   todas.replaceWith(z);
   status.textContent="Toque em Baixar para salvar uma foto, ou baixe todas em um ZIP.";
+
+  // ---------- painel Downloads: abre só pelo ícone de grade (ou link direto #downloads) ----------
+  var painel=document.getElementById('downloads'),abrir=document.getElementById('abrir-dl');
+  function abre(){ if(painel.open)return; if(painel.showModal)painel.showModal(); else painel.setAttribute('open',''); document.body.style.overflow='hidden'; }
+  function fecha(){ if(painel.close)painel.close(); else {painel.removeAttribute('open');document.body.style.overflow='';} }
+  painel.addEventListener('close',function(){document.body.style.overflow='';if(location.hash==='#downloads')history.replaceState(null,'',location.pathname+location.search);abrir.focus()});
+  abrir.addEventListener('click',abre);
+  document.getElementById('fechar-dl').addEventListener('click',fecha);
+  painel.addEventListener('click',function(e){if(e.target===painel)fecha()});
+  if(location.hash==='#downloads')abre();
+  addEventListener('hashchange',function(){if(location.hash==='#downloads')abre()});
 })();
 </script>
 </body>
