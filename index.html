@@ -130,6 +130,32 @@ h2{font-weight:500;font-size:clamp(36px,6vw,72px);line-height:1;letter-spacing:-
 .nomes span{border:1px solid var(--linha);padding:10px 18px;font-size:clamp(16px,1.8vw,20px);font-weight:400}
 
 .links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--linha);border:1px solid var(--linha)}
+.ic{width:30px;height:30px;flex:none;fill:currentColor;transition:transform .45s cubic-bezier(.2,.8,.2,1),color .3s}
+.links a.rede{position:relative;overflow:hidden;justify-content:flex-start;gap:18px;isolation:isolate}
+.rede::before,.contato::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--cor);opacity:0;transform:translateY(101%);transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .3s}
+.rede-txt,.contato-txt{display:grid;gap:4px;min-width:0;flex:1}
+.rede-txt .mono,.contato-txt .mono{color:var(--texto-2);font-size:11px;letter-spacing:.14em;text-transform:uppercase;transition:color .3s}
+.links a.rede .seta{font-size:20px;transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.rede:hover .ic,.rede:focus-visible .ic{color:var(--cor);transform:scale(1.18) rotate(-8deg)}
+.rede:hover::before,.rede:focus-visible::before{opacity:.12;transform:none}
+.rede:hover .seta,.rede:focus-visible .seta{transform:translate(4px,-4px);color:var(--cor)}
+.contatos{display:grid;gap:1px;background:var(--linha);border:1px solid var(--linha)}
+.contato{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:center;gap:20px;background:var(--bg);padding:24px;cursor:pointer;transition:background .3s}
+.contato .ic{width:34px;height:34px}
+.ic.ic-linha{fill:none}
+.contato-txt strong{font-weight:400;font-size:clamp(20px,2.6vw,30px);overflow-wrap:anywhere}
+.acoes{display:flex;gap:8px;flex-wrap:wrap}
+.acao{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--linha);padding:10px 14px;white-space:nowrap;transition:background .3s,color .3s,border-color .3s}
+.contato:hover::before,.contato:focus-visible::before{opacity:.1;transform:none}
+.contato:hover .ic,.contato:focus-visible .ic{color:var(--cor);transform:scale(1.15)}
+.contato:hover>.acao,.contato .acao:hover,.contato:focus-visible .copia-rotulo{background:var(--texto);color:var(--bg);border-color:var(--texto)}
+.contato.copiado .copia-rotulo{background:#25D366;border-color:#25D366;color:#06130b}
+.contato.copiado strong{animation:pulso .6s ease}
+@keyframes pulso{40%{color:#25D366;transform:translateX(4px)}}
+.toast{position:fixed;left:50%;bottom:120px;z-index:60;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--texto);color:var(--bg);font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:12px 18px;transition:opacity .3s,transform .4s cubic-bezier(.2,.8,.2,1)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+@media (max-width:640px){.contato{flex-wrap:wrap;padding:20px}.contato .acoes,.contato>.acao{width:100%}.contato>.acao{text-align:center}}
+@media (prefers-reduced-motion:reduce){.ic,.rede::before,.contato::before,.toast{transition:none}}
 .links a{background:var(--bg);padding:28px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px;transition:background .2s;min-width:0}
 .links a:hover{background:var(--bg-2)}
 .links strong{font-weight:500;font-size:clamp(22px,2.6vw,30px)}
@@ -155,7 +181,7 @@ h2{font-weight:500;font-size:clamp(36px,6vw,72px);line-height:1;letter-spacing:-
 .era .fase{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--texto-2)}
 .era h3{font-weight:500;font-size:clamp(22px,2.6vw,30px);line-height:1.15;margin:8px 0 8px}
 .era p{margin:0;color:var(--texto-2);font-size:14px}
-.era-fotos{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:12px}
+.era-fotos{margin-top:4px;display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:12px}
 .era-fotos figure{margin:0;overflow:hidden;background:var(--bg-2)}
 .era-fotos img{width:100%;aspect-ratio:4/5;object-fit:cover;transition:transform .6s ease}
 .era-fotos figure:hover img{transform:scale(1.03)}
@@ -207,7 +233,7 @@ footer img{height:20px;width:auto;opacity:.75}
   <div class="wrap">
     <a class="marca" href="#topo" aria-label="HAGAVE, início"><img src="logo-hagave-branco.png" alt="HAGAVE"></a>
     <nav aria-label="Seções">
-      <a href="#aovivo">Ao vivo</a><a href="#bio">Bio</a><a href="#som">Som</a><a href="#fotos">Fotos</a><a href="#trajetoria">Trajetória</a><a href="#booking">Booking</a>
+      <a href="#bio">Bio</a><a href="#trajetoria">Trajetória</a><a href="#music">Music</a><a href="#fotos">Fotos</a><a href="#booking">Booking</a>
     </nav>
     <button class="grade-btn" type="button" id="abrir-dl" aria-label="Downloads: fotos em alta" aria-haspopup="dialog" title="Downloads"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><rect x="1" y="1" width="7.5" height="7.5"/><rect x="11.5" y="1" width="7.5" height="7.5"/><rect x="1" y="11.5" width="7.5" height="7.5"/><rect x="11.5" y="11.5" width="7.5" height="7.5"/></svg></button>
   </div>
@@ -220,37 +246,6 @@ footer img{height:20px;width:auto;opacity:.75}
 
 <main class="gutter">
 <div class="wrap">
-
-  <section id="aovivo">
-    <div class="cabecalho"><h2>Ao vivo</h2><span class="nota">Vídeos reais · passe o mouse e ligue o Som</span></div>
-    <div class="aovivo">
-      <figure class="clip">
-        <video muted loop playsinline preload="none" poster="video/aovivo_barco.jpg" data-src="video/aovivo_barco.mp4" aria-label="HAGAVE tocando no barco de camiseta e chapéu rosa"></video>
-        <button class="som" type="button" aria-pressed="false">Som</button>
-        <figcaption class="mono" data-n="01">Barco · Private Floripa</figcaption>
-      </figure>
-      <figure class="clip">
-        <video muted loop playsinline preload="none" poster="video/aovivo_club_cabine.jpg" data-src="video/aovivo_club_cabine.mp4" aria-label="HAGAVE mixando com a camiseta HAGAVE"></video>
-        <button class="som" type="button" aria-pressed="false">Som</button>
-        <figcaption class="mono" data-n="02">Club · cabine</figcaption>
-      </figure>
-      <figure class="clip">
-        <video muted loop playsinline preload="none" poster="video/aovivo_club_pista.jpg" data-src="video/aovivo_club_pista.mp4" aria-label="HAGAVE de costas tocando, pista com as mãos para cima"></video>
-        <button class="som" type="button" aria-pressed="false">Som</button>
-        <figcaption class="mono" data-n="03">Club · pista</figcaption>
-      </figure>
-      <figure class="clip">
-        <video muted loop playsinline preload="none" poster="video/aovivo_origins.jpg" data-src="video/aovivo_origins.mp4" aria-label="HAGAVE na cabine da ORIGINS com a bandeira HAGAVE"></video>
-        <button class="som" type="button" aria-pressed="false">Som</button>
-        <figcaption class="mono" data-n="04">ORIGINS</figcaption>
-      </figure>
-      <figure class="clip">
-        <video muted loop playsinline preload="none" poster="video/aovivo_set_dia.jpg" data-src="video/aovivo_set_dia.mp4" aria-label="HAGAVE de boné e fone mixando num set de dia"></video>
-        <button class="som" type="button" aria-pressed="false">Som</button>
-        <figcaption class="mono" data-n="05">Day set</figcaption>
-      </figure>
-    </div>
-  </section>
 
   <section id="bio">
     <div class="bio">
@@ -279,17 +274,31 @@ footer img{height:20px;width:auto;opacity:.75}
     </div>
   </section>
 
-  <section id="som">
-    <div class="cabecalho"><h2>Som</h2></div>
+  <section id="trajetoria">
+    <div class="cabecalho"><h2>Trajetória</h2><span class="nota">Pistas cheias, cabine à noite e a bandeira HAGAVE na frente do público.</span></div>
+      <div class="era-fotos clubs" style="--n:4">
+        <figure><img src="trajetoria/HAGAVE_2022_rosa_bracos_abertos.jpg" alt="HAGAVE de braços abertos na cabine com a pista cheia ao fundo" loading="lazy"></figure>
+        <figure><img src="trajetoria/HAGAVE_2022_rosa_close_pb.jpg" alt="Close em preto e branco do HAGAVE com o fone no ouvido" loading="lazy" style="object-position:70% center"></figure>
+        <figure><img src="trajetoria/HAGAVE_2022_rosa_pista_grande.jpg" alt="HAGAVE de costas tocando para uma pista grande com luz verde" loading="lazy"></figure>
+        <figure><img src="trajetoria/HAGAVE_club_laser_azul.jpg" alt="HAGAVE na cabine com feixe de luz azul" loading="lazy"></figure>
+        <figure><img src="trajetoria/HAGAVE_club_origins_cabine_bandeira.jpg" alt="Cabine da ORIGINS com a bandeira HAGAVE" loading="lazy"></figure>
+        <figure><img src="trajetoria/HAGAVE_club_origins_letreiro.jpg" alt="HAGAVE tocando sob o letreiro ORIGINS" loading="lazy"></figure>
+        <figure><img src="trajetoria/HAGAVE_club_cabine_azul.jpg" alt="HAGAVE mixando com luz azul de contra" loading="lazy"></figure>
+        <figure><img src="trajetoria/HAGAVE_2024_laricao_pb.jpg" alt="HAGAVE sorrindo com fones no Laricão Pub, em preto e branco" loading="lazy"></figure>
+      </div>
+  </section>
+
+  <section id="music">
+    <div class="cabecalho"><h2>Music</h2></div>
     <div class="faixa" id="faixa">
       <span class="mono" style="color:var(--texto-2)">Tocando no press kit</span>
       <strong style="font-size:clamp(20px,2.6vw,28px);font-weight:400">As faixas do HAGAVE no Spotify</strong>
       <button class="btn" type="button" id="ouvir-agora">▶ Ouvir agora</button>
     </div>
     <div class="links">
-      <a href="https://open.spotify.com/artist/3ouCNaJ0bDVtnPdmzjhmC7" target="_blank" rel="noopener"><strong>Spotify</strong><span class="seta">Hagave ↗</span></a>
-      <a href="https://soundcloud.com/hagavemusic" target="_blank" rel="noopener"><strong>SoundCloud</strong><span class="seta">hagavemusic ↗</span></a>
-      <a href="https://www.instagram.com/hagavemusic/" target="_blank" rel="noopener"><strong>Instagram</strong><span class="seta">@hagavemusic ↗</span></a>
+      <a class="rede" href="https://open.spotify.com/artist/3ouCNaJ0bDVtnPdmzjhmC7" target="_blank" rel="noopener" style="--cor:#1DB954"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg><span class="rede-txt"><strong>Spotify</strong><span class="mono">Hagave</span></span><span class="seta" aria-hidden="true">↗</span></a>
+      <a class="rede" href="https://soundcloud.com/hagavemusic" target="_blank" rel="noopener" style="--cor:#FF5500"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M23.999 14.165c-.052 1.796-1.612 3.169-3.4 3.169h-8.18a.68.68 0 0 1-.675-.683V7.862a.747.747 0 0 1 .452-.724s.75-.513 2.333-.513a5.364 5.364 0 0 1 2.763.755 5.433 5.433 0 0 1 2.57 3.54c.282-.08.574-.121.868-.12.884 0 1.73.358 2.347.992s.948 1.49.922 2.373ZM10.721 8.421c.247 2.98.427 5.697 0 8.672a.264.264 0 0 1-.53 0c-.395-2.946-.22-5.718 0-8.672a.264.264 0 0 1 .53 0ZM9.072 9.448c.285 2.659.37 4.986-.006 7.655a.277.277 0 0 1-.55 0c-.331-2.63-.256-5.02 0-7.655a.277.277 0 0 1 .556 0Zm-1.663-.257c.27 2.726.39 5.171 0 7.904a.266.266 0 0 1-.532 0c-.38-2.69-.257-5.21 0-7.904a.266.266 0 0 1 .532 0Zm-1.647.77a26.108 26.108 0 0 1-.008 7.147.272.272 0 0 1-.542 0 27.955 27.955 0 0 1 0-7.147.275.275 0 0 1 .55 0Zm-1.67 1.769c.421 1.865.228 3.5-.029 5.388a.257.257 0 0 1-.514 0c-.21-1.858-.398-3.549 0-5.389a.272.272 0 0 1 .543 0Zm-1.655-.273c.388 1.897.26 3.508-.01 5.412-.026.28-.514.283-.54 0-.244-1.878-.347-3.54-.01-5.412a.283.283 0 0 1 .56 0Zm-1.668.911c.4 1.268.257 2.292-.026 3.572a.257.257 0 0 1-.514 0c-.241-1.262-.354-2.312-.023-3.572a.283.283 0 0 1 .563 0Z"/></svg><span class="rede-txt"><strong>SoundCloud</strong><span class="mono">hagavemusic</span></span><span class="seta" aria-hidden="true">↗</span></a>
+      <a class="rede" href="https://www.instagram.com/hagavemusic/" target="_blank" rel="noopener" style="--cor:#E4405F"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg><span class="rede-txt"><strong>Instagram</strong><span class="mono">@hagavemusic</span></span><span class="seta" aria-hidden="true">↗</span></a>
     </div>
   </section>
 
@@ -311,45 +320,14 @@ footer img{height:20px;width:auto;opacity:.75}
     </div>
   </section>
 
-  <section id="trajetoria">
-    <div class="cabecalho"><h2>Trajetória</h2><span class="nota">Ao vivo · clubs</span></div>
-    <div class="traj-topo">
-      <figure class="traj-video">
-        <video id="aftermovie" controls playsinline preload="metadata" poster="video/hagave_aftermovie_poster.jpg" aria-label="Aftermovie HAGAVE ao vivo">
-          <source src="video/hagave_aftermovie.mp4" type="video/mp4">
-        </video>
-      </figure>
-      <div class="traj-texto">
-        <span class="mono" style="color:var(--texto-2)">Aftermovie · 39 s · trilha: This Is America — HAGAVE</span>
-        <p class="citacao" style="margin:0">Da cabine à pista.</p>
-        <p class="nota">Recortes reais de apresentações do HAGAVE, cortados no compasso da sua faixa This Is America: o breakdown no dia, o drop na pista.</p>
-        <a class="btn sec" href="video/hagave_aftermovie.mp4" download="HAGAVE_aftermovie.mp4">Baixar vídeo (MP4 · 8 MB)</a>
-      </div>
-    </div>
-    <div class="eras">
-      <div class="era">
-        <div><h3>Clubs</h3><p>Pistas cheias, cabine à noite e a bandeira HAGAVE na frente do público.</p></div>
-        <div class="era-fotos clubs" style="--n:4">
-          <figure><img src="trajetoria/HAGAVE_2022_rosa_bracos_abertos.jpg" alt="HAGAVE de braços abertos na cabine com a pista cheia ao fundo" loading="lazy"></figure>
-          <figure><img src="trajetoria/HAGAVE_2022_rosa_close_pb.jpg" alt="Close em preto e branco do HAGAVE com o fone no ouvido" loading="lazy" style="object-position:70% center"></figure>
-          <figure><img src="trajetoria/HAGAVE_2022_rosa_pista_grande.jpg" alt="HAGAVE de costas tocando para uma pista grande com luz verde" loading="lazy"></figure>
-          <figure><img src="trajetoria/HAGAVE_club_laser_azul.jpg" alt="HAGAVE na cabine com feixe de luz azul" loading="lazy"></figure>
-          <figure><img src="trajetoria/HAGAVE_club_origins_cabine_bandeira.jpg" alt="Cabine da ORIGINS com a bandeira HAGAVE" loading="lazy"></figure>
-          <figure><img src="trajetoria/HAGAVE_club_origins_letreiro.jpg" alt="HAGAVE tocando sob o letreiro ORIGINS" loading="lazy"></figure>
-          <figure><img src="trajetoria/HAGAVE_club_cabine_azul.jpg" alt="HAGAVE mixando com luz azul de contra" loading="lazy"></figure>
-          <figure><img src="trajetoria/HAGAVE_2024_laricao_pb.jpg" alt="HAGAVE sorrindo com fones no Laricão Pub, em preto e branco" loading="lazy"></figure>
-        </div>
-      </div>
-    </div>
-  </section>
-
-
   <section id="booking">
     <div class="cabecalho"><h2>Booking</h2></div>
-    <div class="booking">
-      <div class="email"><span id="c-mail">hagavemusic@hotmail.com</span><button class="copiar" type="button" data-copy="c-mail">Copiar</button></div>
-      <span class="nota">Instagram <a href="https://www.instagram.com/hagavemusic/" target="_blank" rel="noopener" style="border-bottom:1px solid var(--linha)">@hagavemusic</a></span>
+    <div class="contatos">
+      <a class="contato" href="https://wa.me/5548998610864?text=Ol%C3%A1%20HAGAVE!%20Vi%20seu%20press%20kit%20e%20quero%20falar%20sobre%20uma%20data%20de%20booking." target="_blank" rel="noopener" style="--cor:#25D366" id="c-whats"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg><span class="contato-txt"><span class="mono">WhatsApp</span><strong>+55 48 99861-0864</strong></span><span class="acao">Mandar mensagem <span aria-hidden="true">↗</span></span></a>
+      <div class="contato" style="--cor:#EFE8E2" id="c-email" role="button" tabindex="0" data-copy="c-mail" aria-label="Copiar o e-mail hagavemusic@hotmail.com"><svg class="ic ic-linha" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="4.5" width="19" height="15" rx="1.5"/><path d="m3 6 9 7 9-7"/></svg><span class="contato-txt"><span class="mono">E-mail · toque para copiar</span><strong id="c-mail">hagavemusic@hotmail.com</strong></span><span class="acoes"><span class="acao copia-rotulo">Copiar</span><a class="acao" href="mailto:hagavemusic@hotmail.com?subject=Booking%20HAGAVE">Escrever <span aria-hidden="true">↗</span></a></span></div>
+      <a class="contato" href="https://www.instagram.com/hagavemusic/" target="_blank" rel="noopener" style="--cor:#E4405F"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg><span class="contato-txt"><span class="mono">Instagram · direct</span><strong>@hagavemusic</strong></span><span class="acao">Abrir <span aria-hidden="true">↗</span></span></a>
     </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
   </section>
 
   <footer>
@@ -393,14 +371,20 @@ footer img{height:20px;width:auto;opacity:.75}
     pt.setAttribute('aria-pressed',String(isPt));en.setAttribute('aria-pressed',String(!isPt));}
   pt.addEventListener('click',function(){set(true)});en.addEventListener('click',function(){set(false)});
 
-  // ---------- copiar e-mail ----------
+  // ---------- copiar e-mail: o cartão inteiro copia, com aviso ----------
+  var toast=document.getElementById('toast'),tt;
+  function aviso(t){ toast.textContent=t; toast.classList.add('on'); clearTimeout(tt); tt=setTimeout(function(){toast.classList.remove('on')},1800); }
   document.querySelectorAll('[data-copy]').forEach(function(b){
-    b.addEventListener('click',function(){
-      var el=document.getElementById(b.getAttribute('data-copy'));
-      function ok(){b.textContent='Copiado';setTimeout(function(){b.textContent='Copiar'},1500)}
-      function sel(){var r=document.createRange();r.selectNodeContents(el);var s=getSelection();s.removeAllRanges();s.addRange(r)}
-      try{navigator.clipboard.writeText(el.textContent).then(ok,sel)}catch(e){sel()}
-    });
+    var rot=b.querySelector('.copia-rotulo');
+    function copia(e){
+      if(e.target.closest('a'))return;
+      var el=document.getElementById(b.getAttribute('data-copy')),txt=el.textContent.trim();
+      function ok(){ b.classList.add('copiado'); if(rot)rot.textContent='✓ Copiado'; aviso('E-mail copiado'); setTimeout(function(){ b.classList.remove('copiado'); if(rot)rot.textContent='Copiar'; },1800); }
+      function sel(){ var r=document.createRange();r.selectNodeContents(el);var s=getSelection();s.removeAllRanges();s.addRange(r); aviso('Selecionado: use Ctrl+C'); }
+      try{ navigator.clipboard.writeText(txt).then(ok,sel); }catch(err){ sel(); }
+    }
+    b.addEventListener('click',copia);
+    b.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); copia(e); } });
   });
 
   // ---------- loop em vídeo (25 fps, 1080p; 720p no modo economia de dados).
@@ -419,36 +403,9 @@ footer img{height:20px;width:auto;opacity:.75}
   setTimeout(function(){ if(!trocou&&loop.paused){ tocar(); setTimeout(function(){ if(loop.paused)plano() },1500) } },2500);
   document.addEventListener('visibilitychange',function(){ if(!document.hidden&&!trocou&&loop.paused)tocar() });
 
-  // ---------- ao vivo: toca só quando aparece na tela; botão Som liga o áudio de um por vez ----------
-  var clips=[].slice.call(document.querySelectorAll('.clip video'));
-  function carrega(v){ if(!v.src){ v.src=v.dataset.src; v.preload='auto'; } }
-  function toca(v){ carrega(v); var p=v.play(); if(p&&p.catch)p.catch(function(){}); }
-  if('IntersectionObserver' in window){
-    var io=new IntersectionObserver(function(es){es.forEach(function(e){ if(e.isIntersecting)toca(e.target); else e.target.pause(); })},{threshold:.5});
-    clips.forEach(function(v){io.observe(v)});
-  } else clips.forEach(toca);
-  var somAtivo=false;
-  function soEste(v){ clips.forEach(function(o){ var on=o===v; o.muted=!on; o.parentNode.querySelector('.som').setAttribute('aria-pressed',String(on)); }); }
-  document.querySelectorAll('.clip .som').forEach(function(b){
-    b.addEventListener('click',function(){
-      var v=b.parentNode.querySelector('video');
-      if(v.muted){ somAtivo=true; soEste(v); v.currentTime=0; toca(v); } else { somAtivo=false; soEste(null); }
-    });
-  });
-  document.querySelectorAll('.clip').forEach(function(c){
-    var v=c.querySelector('video');
-    c.addEventListener('mouseenter',function(){ toca(v); if(somAtivo)soEste(v); });
-    c.addEventListener('mousemove',function(e){
-      var r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
-      c.style.setProperty('--mx',(x*100).toFixed(1)+'%');c.style.setProperty('--my',(y*100).toFixed(1)+'%');
-      v.style.setProperty('--px',((.5-x)*3).toFixed(2)+'%');v.style.setProperty('--py',((.5-y)*3).toFixed(2)+'%');
-    });
-    c.addEventListener('mouseleave',function(){ v.style.removeProperty('--px');v.style.removeProperty('--py'); });
-  });
-
   // ---------- Spotify: toca sozinho no 1º toque/clique (navegadores não deixam tocar som antes disso) ----------
   var player=document.getElementById('player'),pill=document.getElementById('player-pill'),pst=document.getElementById('player-status');
-  var sp=null,tocando=false,querTocar=false,af=document.getElementById('aftermovie');
+  var sp=null,tocando=false,querTocar=false;
   var iniciou=false;
   function spPlay(){ querTocar=true; if(sp&&window.__spPronto){ if(iniciou)sp.resume(); else { sp.play(); iniciou=true; } } }
   function spPause(){ querTocar=false; if(sp&&iniciou)sp.pause(); }
@@ -462,13 +419,13 @@ footer img{height:20px;width:auto;opacity:.75}
         var pausado=!e.data||e.data.isPaused; tocando=!pausado;
         pst.innerHTML=tocando?'<b>●</b> Tocando agora':'<b>●</b> Toque em qualquer lugar para ouvir';
         if(tocando&&!querTocar){ c.pause(); return; }
-        if(tocando){ somAtivo=false; soEste(null); if(af&&!af.paused&&!af.muted)af.pause(); }
+        if(tocando){ document.querySelectorAll('main video').forEach(function(v){ if(v.id!=='loop'&&!v.paused&&!v.muted)v.pause(); }); }
       });
     });
   };
   (function(){var sc=document.createElement('script');sc.src='https://open.spotify.com/embed/iframe-api/v1';sc.async=true;document.head.appendChild(sc)})();
   function primeiroToque(e){
-    if(e.target.closest&&e.target.closest('.som,#aftermovie,#player-min,#player'))return;
+    if(e.target.closest&&e.target.closest('#player-min,#player,.sets'))return;
     document.removeEventListener('pointerdown',primeiroToque,true);document.removeEventListener('keydown',primeiroToque,true);
     spPlay();
   }
@@ -476,9 +433,9 @@ footer img{height:20px;width:auto;opacity:.75}
   document.getElementById('ouvir-agora').addEventListener('click',function(){ player.classList.remove('min'); spPlay(); });
   document.getElementById('player-min').addEventListener('click',function(){ player.classList.add('min'); });
   pill.addEventListener('click',function(){ player.classList.remove('min'); spPlay(); });
-  // vídeo com som pausa a música
-  document.querySelectorAll('.clip .som').forEach(function(b){ b.addEventListener('click',function(){ if(somAtivo)spPause(); }); });
-  if(af)af.addEventListener('play',function(){ if(!af.muted)spPause(); });
+  // qualquer vídeo da página tocando com som pausa a música
+  document.addEventListener('play',function(e){ var v=e.target; if(v.tagName==='VIDEO'&&v.id!=='loop'&&!v.muted)spPause(); },true);
+  window.__spPauseExterno=spPause;
 
   // ---------- downloads ----------
   var ARQUIVOS=[
