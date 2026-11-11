@@ -95,6 +95,22 @@ h2{font-weight:500;font-size:clamp(36px,6vw,72px);line-height:1;letter-spacing:-
 .arquivo img{width:100%;aspect-ratio:2/3;object-fit:cover}
 .arquivo figcaption{color:var(--texto-2)}
 
+/* TRAJETÓRIA */
+.traj-topo{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:clamp(28px,5vw,72px);align-items:end}
+.traj-video{margin:0;background:#000;aspect-ratio:9/16;overflow:hidden}
+.traj-video video{width:100%;height:100%;object-fit:cover;display:block;background:#000}
+.traj-texto{display:grid;gap:20px;justify-items:start;max-width:52ch;min-width:0}
+.traj-texto p{margin:0}
+.eras{display:grid;gap:clamp(40px,6vw,80px);margin-top:clamp(56px,8vw,112px)}
+.era{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:clamp(20px,3vw,40px);border-top:1px solid var(--linha);padding-top:20px}
+.era .fase{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--texto-2)}
+.era h3{font-weight:500;font-size:clamp(22px,2.6vw,30px);line-height:1.15;margin:8px 0 8px}
+.era p{margin:0;color:var(--texto-2);font-size:14px}
+.era-fotos{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:12px}
+.era-fotos figure{margin:0;overflow:hidden;background:var(--bg-2)}
+.era-fotos img{width:100%;aspect-ratio:4/5;object-fit:cover;transition:transform .6s ease}
+.era-fotos figure:hover img{transform:scale(1.03)}
+
 /* DOWNLOADS */
 .dl-topo{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px}
 .btn{text-decoration:none;display:inline-flex;align-items:center;gap:10px;background:var(--texto);color:var(--bg);border:0;padding:14px 22px;font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
@@ -120,6 +136,9 @@ footer img{height:20px;width:auto;opacity:.75}
   .g-alta{grid-row:span 2}.g-alta img{aspect-ratio:auto;height:100%}
   .arquivo{grid-template-columns:repeat(2,minmax(0,1fr))}
   .ficha{grid-template-columns:minmax(0,1fr)}
+  .traj-topo{grid-template-columns:minmax(0,1fr)}
+  .traj-video{max-width:420px;width:100%}
+  .era{grid-template-columns:minmax(0,1fr)}
 }
 @media (max-width:520px){
   .cab nav{gap:6px 14px}
@@ -127,8 +146,9 @@ footer img{height:20px;width:auto;opacity:.75}
   .arquivo{grid-template-columns:minmax(0,1fr)}
   .lema{letter-spacing:.28em}
   .dl-grade{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .era-fotos{gap:8px}
 }
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.galeria img{transition:none}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.galeria img,.era-fotos img{transition:none}}
 </style>
 </head>
 <body>
@@ -137,7 +157,7 @@ footer img{height:20px;width:auto;opacity:.75}
   <div class="wrap">
     <a class="marca" href="#topo" aria-label="HAGAVE, início"><img src="logo-hagave-branco.png" alt="HAGAVE"></a>
     <nav aria-label="Seções">
-      <a href="#bio">Bio</a><a href="#som">Som</a><a href="#fotos">Fotos</a><a href="#downloads" class="dl">Downloads</a><a href="#booking">Booking</a>
+      <a href="#bio">Bio</a><a href="#som">Som</a><a href="#fotos">Fotos</a><a href="#trajetoria">Trajetória</a><a href="#downloads" class="dl">Downloads</a><a href="#booking">Booking</a>
     </nav>
   </div>
 </header>
@@ -211,6 +231,55 @@ footer img{height:20px;width:auto;opacity:.75}
       <figure><img src="arquivo/HAGAVE_costas_monograma.jpg" alt="HAGAVE de costas com o monograma HV vermelho na camiseta" loading="lazy" style="object-position:center 42%"><figcaption class="mono">Monograma HV</figcaption></figure>
       <figure><img src="arquivo/HAGAVE_2023_bone.jpg" alt="HAGAVE com boné do monograma HV e óculos escuros" loading="lazy"><figcaption class="mono">Estúdio · 2023</figcaption></figure>
       <figure><img src="arquivo/HAGAVE_2023_mao.jpg" alt="HAGAVE com a mão tatuada cobrindo o rosto" loading="lazy"><figcaption class="mono">Estúdio · 2023</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="trajetoria">
+    <div class="cabecalho"><h2>Trajetória</h2><span class="nota">Ao vivo · clubs, open airs e estúdio</span></div>
+    <div class="traj-topo">
+      <figure class="traj-video">
+        <video id="aftermovie" controls playsinline preload="metadata" poster="video/hagave_aftermovie_poster.jpg" aria-label="Aftermovie HAGAVE ao vivo">
+          <source src="video/hagave_aftermovie.mp4" type="video/mp4">
+        </video>
+      </figure>
+      <div class="traj-texto">
+        <span class="mono" style="color:var(--texto-2)">Aftermovie · 50 s · som do set ao vivo</span>
+        <p class="citacao" style="margin:0">Do dia à noite, da cabine à pista.</p>
+        <p class="nota">Recortes reais de apresentações do HAGAVE — open air, Sun Times, ORIGINS e clubs — com o som gravado na pista.</p>
+        <a class="btn sec" href="video/hagave_aftermovie.mp4" download="HAGAVE_aftermovie.mp4">Baixar vídeo (MP4 · 11 MB)</a>
+      </div>
+    </div>
+    <div class="eras">
+      <div class="era">
+        <div><span class="fase">Fase 01</span><h3>Clubs</h3><p>Pistas cheias, cabelo rosa e a energia das primeiras temporadas.</p></div>
+        <div class="era-fotos" style="--n:3">
+          <figure><img src="trajetoria/HAGAVE_2022_rosa_bracos_abertos.jpg" alt="HAGAVE de braços abertos na cabine com a pista cheia ao fundo" loading="lazy"></figure>
+          <figure><img src="trajetoria/HAGAVE_2022_rosa_close_pb.jpg" alt="Close em preto e branco do HAGAVE com o fone no ouvido" loading="lazy" style="object-position:70% center"></figure>
+          <figure><img src="trajetoria/HAGAVE_2022_rosa_pista_grande.jpg" alt="HAGAVE de costas tocando para uma pista grande com luz verde" loading="lazy"></figure>
+        </div>
+      </div>
+      <div class="era">
+        <div><span class="fase">Fase 02</span><h3>Estúdio</h3><p>Primeiro ensaio de imprensa: boné, óculos e fundo preto.</p></div>
+        <div class="era-fotos" style="--n:2">
+          <figure><img src="trajetoria/HAGAVE_2023_estudio_frente.jpg" alt="HAGAVE de frente em estúdio com fundo preto, boné e óculos escuros" loading="lazy" style="object-position:top"></figure>
+          <figure><img src="trajetoria/HAGAVE_2023_estudio_oculos_preto.jpg" alt="HAGAVE ajustando os óculos em estúdio com fundo preto" loading="lazy" style="object-position:top"></figure>
+        </div>
+      </div>
+      <div class="era">
+        <div><span class="fase">Fase 03</span><h3>Sun Times · ORIGINS</h3><p>Open airs de dia e noites com a bandeira HAGAVE na frente da cabine.</p></div>
+        <div class="era-fotos" style="--n:3">
+          <figure><img src="trajetoria/HAGAVE_2024_suntimes_green_lounge.jpg" alt="HAGAVE tocando no Green Lounge, Sun Times, de boné e óculos amarelos" loading="lazy"></figure>
+          <figure><img src="trajetoria/HAGAVE_2024_origins_bandeira.jpg" alt="HAGAVE na cabine da ORIGINS com a bandeira HAGAVE" loading="lazy"></figure>
+          <figure><img src="trajetoria/HAGAVE_2024_laricao_pb.jpg" alt="HAGAVE sorrindo com fones no Laricão Pub, em preto e branco" loading="lazy"></figure>
+        </div>
+      </div>
+      <div class="era">
+        <div><span class="fase">Fase 04</span><h3>Open air</h3><p>Festas de dia, pista lotada em volta da cabine.</p></div>
+        <div class="era-fotos" style="--n:2">
+          <figure><img src="trajetoria/HAGAVE_2025_openair_publico.jpg" alt="HAGAVE na cabine de uma festa ao ar livre com o público ao fundo" loading="lazy"></figure>
+          <figure><img src="trajetoria/HAGAVE_2025_openair_cabine.jpg" alt="HAGAVE concentrado na cabine de uma festa ao ar livre" loading="lazy"></figure>
+        </div>
+      </div>
     </div>
   </section>
 
