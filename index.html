@@ -61,7 +61,7 @@ dialog.painel::backdrop{background:rgba(0,0,0,.6)}
 .fechar:hover{border-color:var(--texto)}
 .painel-corpo{padding-block:32px 64px}
 /* ao vivo: vídeos reais */
-.aovivo{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.aovivo{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 .clip{margin:0;position:relative;background:#000;display:grid;gap:10px}
 .clip video{width:100%;aspect-ratio:9/16;object-fit:cover;display:block;background:#000}
 .clip figcaption{color:var(--texto-2)}
@@ -161,8 +161,6 @@ footer img{height:20px;width:auto;opacity:.75}
   .traj-topo{grid-template-columns:minmax(0,1fr)}
   .traj-video{max-width:420px;width:100%}
   .era{grid-template-columns:minmax(0,1fr)}
-  .era-fotos.clubs{--n:3 !important}
-  .era-fotos.clubs figure:nth-child(10){display:none}
 }
 @media (max-width:520px){
   .cab nav{gap:6px 14px}
@@ -172,7 +170,7 @@ footer img{height:20px;width:auto;opacity:.75}
   .dl-grade{grid-template-columns:repeat(2,minmax(0,1fr))}
   .era-fotos{gap:8px}
 }
-@media (max-width:520px){.era-fotos.clubs{--n:2 !important}.era-fotos.clubs figure:nth-child(10){display:block}}
+@media (max-width:520px){.era-fotos.clubs{--n:2 !important}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.galeria img,.era-fotos img{transition:none}}
 </style>
 </head>
@@ -197,22 +195,27 @@ footer img{height:20px;width:auto;opacity:.75}
 <div class="wrap">
 
   <section id="aovivo">
-    <div class="cabecalho"><h2>Ao vivo</h2><span class="nota">Vídeos reais, sem filtro · som da pista</span></div>
+    <div class="cabecalho"><h2>Ao vivo</h2><span class="nota">Vídeos reais em 1080p, sem filtro · som da pista</span></div>
     <div class="aovivo">
       <figure class="clip">
-        <video muted loop playsinline preload="none" poster="video/aovivo_club_maos.jpg" data-src="video/aovivo_club_maos.mp4" aria-label="HAGAVE tocando em club com a pista de mãos para cima"></video>
+        <video muted loop playsinline preload="none" poster="video/aovivo_barco.jpg" data-src="video/aovivo_barco.mp4" aria-label="HAGAVE tocando no barco de camiseta e chapéu rosa"></video>
         <button class="som" type="button" aria-pressed="false">Som</button>
-        <figcaption class="mono">Club · mãos pra cima</figcaption>
+        <figcaption class="mono">Barco · Private Floripa</figcaption>
       </figure>
       <figure class="clip">
-        <video muted loop playsinline preload="none" poster="video/aovivo_club_bunker.jpg" data-src="video/aovivo_club_bunker.mp4" aria-label="HAGAVE mixando com camiseta HAGAVE"></video>
+        <video muted loop playsinline preload="none" poster="video/aovivo_club_cabine.jpg" data-src="video/aovivo_club_cabine.mp4" aria-label="HAGAVE mixando com a camiseta HAGAVE"></video>
         <button class="som" type="button" aria-pressed="false">Som</button>
         <figcaption class="mono">Club · cabine</figcaption>
       </figure>
       <figure class="clip">
+        <video muted loop playsinline preload="none" poster="video/aovivo_club_pista.jpg" data-src="video/aovivo_club_pista.mp4" aria-label="HAGAVE de costas tocando, pista com as mãos para cima"></video>
+        <button class="som" type="button" aria-pressed="false">Som</button>
+        <figcaption class="mono">Club · pista</figcaption>
+      </figure>
+      <figure class="clip">
         <video muted loop playsinline preload="none" poster="video/aovivo_origins.jpg" data-src="video/aovivo_origins.mp4" aria-label="HAGAVE na cabine da ORIGINS com a bandeira HAGAVE"></video>
         <button class="som" type="button" aria-pressed="false">Som</button>
-        <figcaption class="mono">ORIGINS · pista</figcaption>
+        <figcaption class="mono">ORIGINS</figcaption>
       </figure>
     </div>
   </section>
@@ -244,11 +247,6 @@ footer img{height:20px;width:auto;opacity:.75}
     </div>
   </section>
 
-  <section>
-    <div class="cabecalho"><h2>Line-ups</h2><span class="nota">Dividiu a cabine com</span></div>
-    <div class="nomes"><span>Classmatic</span><span>Gustavo Koch</span><span>Almanac</span><span>Feelgood</span><span>Fabrício Peçanha</span><span>Duodisco</span></div>
-  </section>
-
   <section id="som">
     <div class="cabecalho"><h2>Som</h2></div>
     <div class="faixa" id="faixa">
@@ -265,7 +263,6 @@ footer img{height:20px;width:auto;opacity:.75}
   <section id="fotos">
     <div class="cabecalho"><h2>Fotos</h2><span class="nota">Liberadas para divulgação · versões em alta no ícone de grade, no topo</span></div>
     <div class="galeria">
-      <figure class="g-alta"><img src="fotos/HAGAVE_01.jpg" alt="HAGAVE com fone no pescoço e óculos dourados" loading="lazy"></figure>
       <figure><img src="fotos/HAGAVE_08.jpg" alt="HAGAVE de frente, camiseta preta" loading="lazy"></figure>
       <figure><img src="fotos/HAGAVE_05.jpg" alt="HAGAVE de perfil" loading="lazy"></figure>
       <figure><img src="fotos/HAGAVE_09.jpg" alt="HAGAVE em três-quartos" loading="lazy"></figure>
@@ -274,15 +271,10 @@ footer img{height:20px;width:auto;opacity:.75}
       <figure><img src="fotos/HAGAVE_07.jpg" alt="HAGAVE olhando para o lado direito" loading="lazy"></figure>
       <figure><img src="fotos/HAGAVE_11.jpg" alt="HAGAVE em três-quartos, olhar baixo" loading="lazy"></figure>
       <figure><img src="fotos/HAGAVE_13.jpg" alt="HAGAVE com a cabeça inclinada" loading="lazy"></figure>
-    </div>
-  </section>
-
-  <section>
-    <div class="cabecalho"><h2>Arquivo</h2><span class="nota">Ensaios anteriores</span></div>
-    <div class="arquivo">
-      <figure><img src="arquivo/HAGAVE_costas_monograma.jpg" alt="HAGAVE de costas com o monograma HV vermelho na camiseta" loading="lazy" style="object-position:center 42%"><figcaption class="mono">Monograma HV</figcaption></figure>
-      <figure><img src="arquivo/HAGAVE_2023_bone.jpg" alt="HAGAVE com boné do monograma HV e óculos escuros" loading="lazy"><figcaption class="mono">Estúdio · 2023</figcaption></figure>
-      <figure><img src="arquivo/HAGAVE_2023_mao.jpg" alt="HAGAVE com a mão tatuada cobrindo o rosto" loading="lazy"><figcaption class="mono">Estúdio · 2023</figcaption></figure>
+      <figure><img src="arquivo/HAGAVE_costas_monograma.jpg" alt="HAGAVE de costas com o monograma HV vermelho na camiseta" loading="lazy" style="object-position:center 42%"></figure>
+      <figure><img src="arquivo/HAGAVE_2023_bone.jpg" alt="HAGAVE com boné do monograma HV e óculos escuros" loading="lazy"></figure>
+      <figure><img src="arquivo/HAGAVE_2023_mao.jpg" alt="HAGAVE com a mão tatuada cobrindo o rosto" loading="lazy"></figure>
+      <figure><img src="fotos/HAGAVE_01.jpg" alt="HAGAVE com fone no pescoço e óculos dourados" loading="lazy"></figure>
     </div>
   </section>
 
@@ -304,16 +296,14 @@ footer img{height:20px;width:auto;opacity:.75}
     <div class="eras">
       <div class="era">
         <div><h3>Clubs</h3><p>Pistas cheias, cabine à noite e a bandeira HAGAVE na frente do público.</p></div>
-        <div class="era-fotos clubs" style="--n:5">
+        <div class="era-fotos clubs" style="--n:4">
           <figure><img src="trajetoria/HAGAVE_2022_rosa_bracos_abertos.jpg" alt="HAGAVE de braços abertos na cabine com a pista cheia ao fundo" loading="lazy"></figure>
           <figure><img src="trajetoria/HAGAVE_2022_rosa_close_pb.jpg" alt="Close em preto e branco do HAGAVE com o fone no ouvido" loading="lazy" style="object-position:70% center"></figure>
-          <figure><img src="trajetoria/HAGAVE_club_luz_vermelha.jpg" alt="HAGAVE tocando sob luz vermelha, público atrás" loading="lazy"></figure>
           <figure><img src="trajetoria/HAGAVE_2022_rosa_pista_grande.jpg" alt="HAGAVE de costas tocando para uma pista grande com luz verde" loading="lazy"></figure>
           <figure><img src="trajetoria/HAGAVE_club_laser_azul.jpg" alt="HAGAVE na cabine com feixe de luz azul" loading="lazy"></figure>
           <figure><img src="trajetoria/HAGAVE_club_origins_cabine_bandeira.jpg" alt="Cabine da ORIGINS com a bandeira HAGAVE" loading="lazy"></figure>
           <figure><img src="trajetoria/HAGAVE_club_origins_letreiro.jpg" alt="HAGAVE tocando sob o letreiro ORIGINS" loading="lazy"></figure>
           <figure><img src="trajetoria/HAGAVE_club_cabine_azul.jpg" alt="HAGAVE mixando com luz azul de contra" loading="lazy"></figure>
-          <figure><img src="trajetoria/HAGAVE_2024_origins_bandeira.jpg" alt="HAGAVE na cabine da ORIGINS com a bandeira HAGAVE" loading="lazy"></figure>
           <figure><img src="trajetoria/HAGAVE_2024_laricao_pb.jpg" alt="HAGAVE sorrindo com fones no Laricão Pub, em preto e branco" loading="lazy"></figure>
         </div>
       </div>
