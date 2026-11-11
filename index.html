@@ -85,7 +85,19 @@ dialog.painel::backdrop{background:rgba(0,0,0,.6)}
 @media (prefers-reduced-motion:reduce){.clip,.clip video{transition:none}}
 /* faixa em destaque */
 .faixa{border:1px solid var(--linha);margin-bottom:1px;padding:20px;display:grid;gap:14px}
-.faixa iframe{width:100%;border:0;display:block}
+.faixa .btn{justify-self:start}
+/* player fixo do Spotify: começa a tocar no primeiro toque/clique na página */
+.player{position:fixed;right:16px;bottom:16px;z-index:40;width:min(360px,calc(100vw - 32px));transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .4s}
+.player-caixa{position:relative;background:#000;border:1px solid var(--linha);box-shadow:0 12px 40px rgba(0,0,0,.55)}
+.player-caixa iframe{display:block;width:100%;height:80px;border:0}
+.player-topo{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px 6px 12px;background:var(--bg)}
+.player-topo span{font-family:var(--f-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--texto-2)}
+.player-topo span b{color:var(--magenta);font-weight:400}
+.player-min{background:none;border:1px solid var(--linha);color:var(--texto);font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:4px 8px;cursor:pointer}
+.player-pill{position:fixed;right:16px;bottom:16px;z-index:41;display:none;align-items:center;gap:8px;background:var(--texto);color:var(--bg);border:0;font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:12px 16px;cursor:pointer;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.player.min{transform:translateY(calc(100% + 40px));opacity:0;pointer-events:none}
+.player.min ~ .player-pill{display:inline-flex}
+@media (max-width:520px){.player{right:8px;left:8px;bottom:8px;width:auto}.player-pill{right:8px;bottom:8px}body{padding-bottom:124px}}
 
 /* abertura imersiva: vídeo de ponta a ponta, altura da tela menos o cabeçalho */
 .abertura{position:relative;width:100%;height:calc(100vh - var(--cab-h,64px));height:calc(100svh - var(--cab-h,64px));min-height:420px;max-height:1200px;overflow:hidden;background:#000 url("video/hv_loop_poster_hd.jpg") center/cover no-repeat;scroll-margin-top:var(--cab-h,64px)}
@@ -117,7 +129,7 @@ h2{font-weight:500;font-size:clamp(36px,6vw,72px);line-height:1;letter-spacing:-
 .nomes{display:flex;flex-wrap:wrap;gap:10px}
 .nomes span{border:1px solid var(--linha);padding:10px 18px;font-size:clamp(16px,1.8vw,20px);font-weight:400}
 
-.links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--linha);border:1px solid var(--linha)}
+.links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--linha);border:1px solid var(--linha)}
 .links a{background:var(--bg);padding:28px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px;transition:background .2s;min-width:0}
 .links a:hover{background:var(--bg-2)}
 .links strong{font-weight:500;font-size:clamp(22px,2.6vw,30px)}
@@ -265,11 +277,12 @@ footer img{height:20px;width:auto;opacity:.75}
   <section id="som">
     <div class="cabecalho"><h2>Som</h2></div>
     <div class="faixa" id="faixa">
-      <span class="mono" style="color:var(--texto-2)">Faixa em destaque</span>
-      <strong style="font-size:clamp(20px,2.6vw,28px);font-weight:400">This Is America — HAGAVE</strong>
-      <iframe id="sc-player" title="HAGAVE no SoundCloud" height="166" loading="lazy" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/users/810956164&amp;color=%23c23d7a&amp;auto_play=false&amp;hide_related=true&amp;show_comments=false&amp;show_user=true&amp;show_reposts=false&amp;show_teaser=false"></iframe>
+      <span class="mono" style="color:var(--texto-2)">Tocando no press kit</span>
+      <strong style="font-size:clamp(20px,2.6vw,28px);font-weight:400">As faixas do HAGAVE no Spotify</strong>
+      <button class="btn" type="button" id="ouvir-agora">▶ Ouvir agora</button>
     </div>
     <div class="links">
+      <a href="https://open.spotify.com/artist/3ouCNaJ0bDVtnPdmzjhmC7" target="_blank" rel="noopener"><strong>Spotify</strong><span class="seta">Hagave ↗</span></a>
       <a href="https://soundcloud.com/hagavemusic" target="_blank" rel="noopener"><strong>SoundCloud</strong><span class="seta">hagavemusic ↗</span></a>
       <a href="https://www.instagram.com/hagavemusic/" target="_blank" rel="noopener"><strong>Instagram</strong><span class="seta">@hagavemusic ↗</span></a>
     </div>
@@ -341,6 +354,14 @@ footer img{height:20px;width:auto;opacity:.75}
 
 </div>
 </main>
+
+<div class="player" id="player" aria-label="Player do Spotify">
+  <div class="player-caixa">
+    <div class="player-topo"><span id="player-status"><b>●</b> Toque em qualquer lugar para ouvir</span><button class="player-min" type="button" id="player-min">Minimizar</button></div>
+    <div id="spotify-embed"><iframe title="HAGAVE no Spotify" src="https://open.spotify.com/embed/artist/3ouCNaJ0bDVtnPdmzjhmC7?utm_source=generator&amp;theme=0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="eager"></iframe></div>
+  </div>
+</div>
+<button class="player-pill" type="button" id="player-pill">♪ Ouvir HAGAVE</button>
 
 <dialog class="painel" id="downloads" aria-labelledby="dl-titulo">
   <div class="painel-topo gutter"><div class="wrap"><h2 id="dl-titulo" class="mono" style="margin:0;font-size:12px">Downloads · fotos em alta</h2><button class="fechar" type="button" id="fechar-dl">Fechar ✕</button></div></div>
@@ -419,6 +440,40 @@ footer img{height:20px;width:auto;opacity:.75}
     });
     c.addEventListener('mouseleave',function(){ v.style.removeProperty('--px');v.style.removeProperty('--py'); });
   });
+
+  // ---------- Spotify: toca sozinho no 1º toque/clique (navegadores não deixam tocar som antes disso) ----------
+  var player=document.getElementById('player'),pill=document.getElementById('player-pill'),pst=document.getElementById('player-status');
+  var sp=null,tocando=false,querTocar=false,af=document.getElementById('aftermovie');
+  var iniciou=false;
+  function spPlay(){ querTocar=true; if(sp&&window.__spPronto){ if(iniciou)sp.resume(); else { sp.play(); iniciou=true; } } }
+  function spPause(){ querTocar=false; if(sp&&iniciou)sp.pause(); }
+  window.__spPause=spPause;
+  window.onSpotifyIframeApiReady=function(API){
+    var el=document.getElementById('spotify-embed');
+    API.createController(el,{uri:'spotify:artist:3ouCNaJ0bDVtnPdmzjhmC7',width:'100%',height:80,theme:'dark'},function(c){
+      sp=c; window.__sp=c;
+      c.addListener('ready',function(){ window.__spPronto=true; if(querTocar&&!iniciou){ c.play(); iniciou=true; } });
+      c.addListener('playback_update',function(e){
+        var pausado=!e.data||e.data.isPaused; tocando=!pausado;
+        pst.innerHTML=tocando?'<b>●</b> Tocando agora':'<b>●</b> Toque em qualquer lugar para ouvir';
+        if(tocando&&!querTocar){ c.pause(); return; }
+        if(tocando){ somAtivo=false; soEste(null); if(af&&!af.paused&&!af.muted)af.pause(); }
+      });
+    });
+  };
+  (function(){var sc=document.createElement('script');sc.src='https://open.spotify.com/embed/iframe-api/v1';sc.async=true;document.head.appendChild(sc)})();
+  function primeiroToque(e){
+    if(e.target.closest&&e.target.closest('.som,#aftermovie,#player-min,#player'))return;
+    document.removeEventListener('pointerdown',primeiroToque,true);document.removeEventListener('keydown',primeiroToque,true);
+    spPlay();
+  }
+  document.addEventListener('pointerdown',primeiroToque,true);document.addEventListener('keydown',primeiroToque,true);
+  document.getElementById('ouvir-agora').addEventListener('click',function(){ player.classList.remove('min'); spPlay(); });
+  document.getElementById('player-min').addEventListener('click',function(){ player.classList.add('min'); });
+  pill.addEventListener('click',function(){ player.classList.remove('min'); spPlay(); });
+  // vídeo com som pausa a música
+  document.querySelectorAll('.clip .som').forEach(function(b){ b.addEventListener('click',function(){ if(somAtivo)spPause(); }); });
+  if(af)af.addEventListener('play',function(){ if(!af.muted)spPause(); });
 
   // ---------- downloads ----------
   var ARQUIVOS=[
