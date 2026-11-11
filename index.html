@@ -60,6 +60,14 @@ dialog.painel::backdrop{background:rgba(0,0,0,.6)}
 .fechar{background:none;border:1px solid var(--linha);color:var(--texto);font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:9px 14px;cursor:pointer}
 .fechar:hover{border-color:var(--texto)}
 .painel-corpo{padding-block:32px 64px}
+/* ao vivo: vídeos reais */
+.aovivo{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.clip{margin:0;position:relative;background:#000;display:grid;gap:10px}
+.clip video{width:100%;aspect-ratio:9/16;object-fit:cover;display:block;background:#000}
+.clip figcaption{color:var(--texto-2)}
+.som{position:absolute;right:10px;top:10px;background:rgba(17,12,10,.7);color:var(--texto);border:1px solid rgba(239,232,226,.35);font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:7px 10px;cursor:pointer}
+.som[aria-pressed="true"]{background:var(--texto);color:var(--bg)}
+@media (max-width:860px){.aovivo{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:72%;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}.clip{scroll-snap-align:start}}
 /* faixa em destaque */
 .faixa{border:1px solid var(--linha);margin-bottom:1px;padding:20px;display:grid;gap:14px}
 .faixa iframe{width:100%;border:0;display:block}
@@ -154,6 +162,7 @@ footer img{height:20px;width:auto;opacity:.75}
   .traj-video{max-width:420px;width:100%}
   .era{grid-template-columns:minmax(0,1fr)}
   .era-fotos.clubs{--n:3 !important}
+  .era-fotos.clubs figure:nth-child(10){display:none}
 }
 @media (max-width:520px){
   .cab nav{gap:6px 14px}
@@ -163,7 +172,7 @@ footer img{height:20px;width:auto;opacity:.75}
   .dl-grade{grid-template-columns:repeat(2,minmax(0,1fr))}
   .era-fotos{gap:8px}
 }
-@media (max-width:520px){.era-fotos.clubs{--n:2 !important}}
+@media (max-width:520px){.era-fotos.clubs{--n:2 !important}.era-fotos.clubs figure:nth-child(10){display:block}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.galeria img,.era-fotos img{transition:none}}
 </style>
 </head>
@@ -173,7 +182,7 @@ footer img{height:20px;width:auto;opacity:.75}
   <div class="wrap">
     <a class="marca" href="#topo" aria-label="HAGAVE, início"><img src="logo-hagave-branco.png" alt="HAGAVE"></a>
     <nav aria-label="Seções">
-      <a href="#bio">Bio</a><a href="#som">Som</a><a href="#fotos">Fotos</a><a href="#trajetoria">Trajetória</a><a href="#booking">Booking</a>
+      <a href="#aovivo">Ao vivo</a><a href="#bio">Bio</a><a href="#som">Som</a><a href="#fotos">Fotos</a><a href="#trajetoria">Trajetória</a><a href="#booking">Booking</a>
     </nav>
     <button class="grade-btn" type="button" id="abrir-dl" aria-label="Downloads: fotos em alta" aria-haspopup="dialog" title="Downloads"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><rect x="1" y="1" width="7.5" height="7.5"/><rect x="11.5" y="1" width="7.5" height="7.5"/><rect x="1" y="11.5" width="7.5" height="7.5"/><rect x="11.5" y="11.5" width="7.5" height="7.5"/></svg></button>
   </div>
@@ -186,6 +195,27 @@ footer img{height:20px;width:auto;opacity:.75}
 
 <main class="gutter">
 <div class="wrap">
+
+  <section id="aovivo">
+    <div class="cabecalho"><h2>Ao vivo</h2><span class="nota">Vídeos reais, sem filtro · som da pista</span></div>
+    <div class="aovivo">
+      <figure class="clip">
+        <video muted loop playsinline preload="none" poster="video/aovivo_club_maos.jpg" data-src="video/aovivo_club_maos.mp4" aria-label="HAGAVE tocando em club com a pista de mãos para cima"></video>
+        <button class="som" type="button" aria-pressed="false">Som</button>
+        <figcaption class="mono">Club · mãos pra cima</figcaption>
+      </figure>
+      <figure class="clip">
+        <video muted loop playsinline preload="none" poster="video/aovivo_club_bunker.jpg" data-src="video/aovivo_club_bunker.mp4" aria-label="HAGAVE mixando com camiseta HAGAVE"></video>
+        <button class="som" type="button" aria-pressed="false">Som</button>
+        <figcaption class="mono">Club · cabine</figcaption>
+      </figure>
+      <figure class="clip">
+        <video muted loop playsinline preload="none" poster="video/aovivo_origins.jpg" data-src="video/aovivo_origins.mp4" aria-label="HAGAVE na cabine da ORIGINS com a bandeira HAGAVE"></video>
+        <button class="som" type="button" aria-pressed="false">Som</button>
+        <figcaption class="mono">ORIGINS · pista</figcaption>
+      </figure>
+    </div>
+  </section>
 
   <section id="bio">
     <div class="bio">
@@ -257,7 +287,7 @@ footer img{height:20px;width:auto;opacity:.75}
   </section>
 
   <section id="trajetoria">
-    <div class="cabecalho"><h2>Trajetória</h2><span class="nota">Ao vivo · clubs e estúdio</span></div>
+    <div class="cabecalho"><h2>Trajetória</h2><span class="nota">Ao vivo · clubs</span></div>
     <div class="traj-topo">
       <figure class="traj-video">
         <video id="aftermovie" controls playsinline preload="metadata" poster="video/hagave_aftermovie_poster.jpg" aria-label="Aftermovie HAGAVE ao vivo">
@@ -273,27 +303,18 @@ footer img{height:20px;width:auto;opacity:.75}
     </div>
     <div class="eras">
       <div class="era">
-        <div><span class="fase">Fase 01</span><h3>Clubs</h3><p>Pistas cheias, cabine à noite e a bandeira HAGAVE na frente do público.</p></div>
-        <div class="era-fotos clubs" style="--n:4">
+        <div><h3>Clubs</h3><p>Pistas cheias, cabine à noite e a bandeira HAGAVE na frente do público.</p></div>
+        <div class="era-fotos clubs" style="--n:5">
           <figure><img src="trajetoria/HAGAVE_2022_rosa_bracos_abertos.jpg" alt="HAGAVE de braços abertos na cabine com a pista cheia ao fundo" loading="lazy"></figure>
-          <figure><img src="trajetoria/HAGAVE_club_pista_cheia.jpg" alt="Pista cheia posando com o HAGAVE, camisetas HAGAVE no público" loading="lazy"></figure>
           <figure><img src="trajetoria/HAGAVE_2022_rosa_close_pb.jpg" alt="Close em preto e branco do HAGAVE com o fone no ouvido" loading="lazy" style="object-position:70% center"></figure>
           <figure><img src="trajetoria/HAGAVE_club_luz_vermelha.jpg" alt="HAGAVE tocando sob luz vermelha, público atrás" loading="lazy"></figure>
           <figure><img src="trajetoria/HAGAVE_2022_rosa_pista_grande.jpg" alt="HAGAVE de costas tocando para uma pista grande com luz verde" loading="lazy"></figure>
           <figure><img src="trajetoria/HAGAVE_club_laser_azul.jpg" alt="HAGAVE na cabine com feixe de luz azul" loading="lazy"></figure>
           <figure><img src="trajetoria/HAGAVE_club_origins_cabine_bandeira.jpg" alt="Cabine da ORIGINS com a bandeira HAGAVE" loading="lazy"></figure>
-          <figure><img src="trajetoria/HAGAVE_club_luz_verde.jpg" alt="HAGAVE na cabine sob luz verde" loading="lazy"></figure>
           <figure><img src="trajetoria/HAGAVE_club_origins_letreiro.jpg" alt="HAGAVE tocando sob o letreiro ORIGINS" loading="lazy"></figure>
           <figure><img src="trajetoria/HAGAVE_club_cabine_azul.jpg" alt="HAGAVE mixando com luz azul de contra" loading="lazy"></figure>
           <figure><img src="trajetoria/HAGAVE_2024_origins_bandeira.jpg" alt="HAGAVE na cabine da ORIGINS com a bandeira HAGAVE" loading="lazy"></figure>
           <figure><img src="trajetoria/HAGAVE_2024_laricao_pb.jpg" alt="HAGAVE sorrindo com fones no Laricão Pub, em preto e branco" loading="lazy"></figure>
-        </div>
-      </div>
-      <div class="era">
-        <div><span class="fase">Fase 02</span><h3>Estúdio</h3><p>Primeiro ensaio de imprensa: boné, óculos e fundo preto.</p></div>
-        <div class="era-fotos" style="--n:2">
-          <figure><img src="trajetoria/HAGAVE_2023_estudio_frente.jpg" alt="HAGAVE de frente em estúdio com fundo preto, boné e óculos escuros" loading="lazy" style="object-position:top"></figure>
-          <figure><img src="trajetoria/HAGAVE_2023_estudio_oculos_preto.jpg" alt="HAGAVE ajustando os óculos em estúdio com fundo preto" loading="lazy" style="object-position:top"></figure>
         </div>
       </div>
     </div>
@@ -366,6 +387,22 @@ footer img{height:20px;width:auto;opacity:.75}
   tocar();
   setTimeout(function(){ if(!trocou&&loop.paused){ tocar(); setTimeout(function(){ if(loop.paused)plano() },1500) } },2500);
   document.addEventListener('visibilitychange',function(){ if(!document.hidden&&!trocou&&loop.paused)tocar() });
+
+  // ---------- ao vivo: toca só quando aparece na tela; botão Som liga o áudio de um por vez ----------
+  var clips=[].slice.call(document.querySelectorAll('.clip video'));
+  function carrega(v){ if(!v.src){ v.src=v.dataset.src; v.preload='auto'; } }
+  function toca(v){ carrega(v); var p=v.play(); if(p&&p.catch)p.catch(function(){}); }
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){ if(e.isIntersecting)toca(e.target); else e.target.pause(); })},{threshold:.5});
+    clips.forEach(function(v){io.observe(v)});
+  } else clips.forEach(toca);
+  document.querySelectorAll('.clip .som').forEach(function(b){
+    b.addEventListener('click',function(){
+      var v=b.parentNode.querySelector('video'),liga=v.muted;
+      clips.forEach(function(o){o.muted=true;o.parentNode.querySelector('.som').setAttribute('aria-pressed','false')});
+      if(liga){v.muted=false;b.setAttribute('aria-pressed','true');v.currentTime=0;toca(v);}
+    });
+  });
 
   // ---------- downloads ----------
   var ARQUIVOS=[
