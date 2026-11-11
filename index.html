@@ -181,9 +181,11 @@ h2{font-weight:500;font-size:clamp(36px,6vw,72px);line-height:1;letter-spacing:-
 .era .fase{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--texto-2)}
 .era h3{font-weight:500;font-size:clamp(22px,2.6vw,30px);line-height:1.15;margin:8px 0 8px}
 .era p{margin:0;color:var(--texto-2);font-size:14px}
-.era-fotos{margin-top:4px;display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:12px}
+.era-fotos{margin-top:4px;grid-auto-flow:row dense;display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:12px}
 .era-fotos figure{margin:0;overflow:hidden;background:var(--bg-2)}
 .era-fotos img{width:100%;aspect-ratio:4/5;object-fit:cover;transition:transform .6s ease}
+.era-fotos figure.larga{grid-column:span 2}
+.era-fotos figure.larga img{aspect-ratio:8/5;height:100%}
 .era-fotos figure:hover img{transform:scale(1.03)}
 
 /* DOWNLOADS */
@@ -193,6 +195,10 @@ h2{font-weight:500;font-size:clamp(36px,6vw,72px);line-height:1;letter-spacing:-
 .btn.sec{background:none;color:var(--texto);border:1px solid var(--linha);padding:8px 12px;font-size:11px}
 .btn.sec:hover:not([disabled]){border-color:var(--texto)}
 .status{color:var(--texto-2);font-size:14px;min-height:1.5em}
+.abas{display:flex;gap:0;margin-bottom:28px;border:1px solid var(--linha);width:max-content;max-width:100%}
+.abas button{background:none;border:0;color:var(--texto-2);font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:12px 18px;cursor:pointer;transition:background .25s,color .25s}
+.abas button[aria-selected="true"]{background:var(--texto);color:var(--bg)}
+.abas button:not([aria-selected="true"]):hover{color:var(--texto)}
 .dl-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
 .dl-item{background:var(--bg-2);display:grid;grid-template-rows:auto 1fr;min-width:0}
 .dl-item img{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:top}
@@ -277,16 +283,30 @@ footer img{height:20px;width:auto;opacity:.75}
   </section>
 
   <section id="trajetoria">
-    <div class="cabecalho"><h2>Trajetória</h2><span class="nota">Pistas cheias, cabine à noite e a bandeira HAGAVE na frente do público.</span></div>
+    <div class="cabecalho"><h2>Trajetória</h2><span class="nota">Clubs, sets de dia e open airs: a pista do HAGAVE ao longo dos anos.</span></div>
       <div class="era-fotos clubs" style="--n:4">
+        <figure class="larga"><img src="trajetoria/HAGAVE_sixx_luz.jpg" alt="HAGAVE na cabine da Sixx House sob feixes de luz branca" loading="lazy"></figure>
+        <figure><img src="trajetoria/HAGAVE_suntimes_sorriso.jpg" alt="HAGAVE sorrindo enquanto mixa no Sun Times, camiseta HAGAVE" loading="lazy"></figure>
+        <figure><img src="trajetoria/HAGAVE_suntimes_olhar.jpg" alt="HAGAVE de óculos escuros olhando para a câmera na cabine do Sun Times" loading="lazy"></figure>
+        <figure><img src="trajetoria/HAGAVE_sixx_camiseta_branca.jpg" alt="HAGAVE de fone e camiseta branca mixando na Sixx House, luz vermelha" loading="lazy"></figure>
+        <figure class="larga"><img src="trajetoria/HAGAVE_sixx_braco.jpg" alt="HAGAVE com o braço levantado sob lasers vermelhos na Sixx House" loading="lazy"></figure>
+        <figure><img src="trajetoria/HAGAVE_suntimes_fone.jpg" alt="HAGAVE de fone e boné para trás no Sun Times" loading="lazy"></figure>
+        <figure><img src="trajetoria/HAGAVE_suntimes_apontando.jpg" alt="HAGAVE apontando para a pista com fone no Sun Times" loading="lazy"></figure>
         <figure><img src="trajetoria/HAGAVE_2022_rosa_bracos_abertos.jpg" alt="HAGAVE de braços abertos na cabine com a pista cheia ao fundo" loading="lazy"></figure>
+        <figure class="larga"><img src="trajetoria/HAGAVE_cabine_abraco_pb.jpg" alt="HAGAVE abraçado na cabine com outro DJ, em preto e branco" loading="lazy"></figure>
+        <figure><img src="trajetoria/HAGAVE_suntimes_perfil.jpg" alt="HAGAVE de perfil com a tatuagem do pescoço, mixando no Sun Times" loading="lazy"></figure>
         <figure><img src="trajetoria/HAGAVE_2022_rosa_close_pb.jpg" alt="Close em preto e branco do HAGAVE com o fone no ouvido" loading="lazy" style="object-position:70% center"></figure>
+        <figure class="larga"><img src="trajetoria/HAGAVE_berlim_cabine.jpg" alt="Mão do HAGAVE no mixer com a placa BERLIM na cabine, luz roxa" loading="lazy"></figure>
+        <figure><img src="trajetoria/HAGAVE_2022_rosa_perfil.jpg" alt="Perfil do HAGAVE com cabelo rosa e óculos escuros" loading="lazy"></figure>
         <figure><img src="trajetoria/HAGAVE_2022_rosa_pista_grande.jpg" alt="HAGAVE de costas tocando para uma pista grande com luz verde" loading="lazy"></figure>
         <figure><img src="trajetoria/HAGAVE_club_laser_azul.jpg" alt="HAGAVE na cabine com feixe de luz azul" loading="lazy"></figure>
+        <figure class="larga"><img src="trajetoria/HAGAVE_maos_mixer_pb.jpg" alt="Mãos tatuadas do HAGAVE no mixer, em preto e branco" loading="lazy"></figure>
         <figure><img src="trajetoria/HAGAVE_club_origins_cabine_bandeira.jpg" alt="Cabine da ORIGINS com a bandeira HAGAVE" loading="lazy"></figure>
         <figure><img src="trajetoria/HAGAVE_club_origins_letreiro.jpg" alt="HAGAVE tocando sob o letreiro ORIGINS" loading="lazy"></figure>
+        <figure><img src="trajetoria/HAGAVE_openair_fone.jpg" alt="HAGAVE de costas segurando o fone num open air de dia" loading="lazy"></figure>
         <figure><img src="trajetoria/HAGAVE_club_cabine_azul.jpg" alt="HAGAVE mixando com luz azul de contra" loading="lazy"></figure>
         <figure><img src="trajetoria/HAGAVE_2024_laricao_pb.jpg" alt="HAGAVE sorrindo com fones no Laricão Pub, em preto e branco" loading="lazy"></figure>
+        <figure><img src="trajetoria/HAGAVE_flyer_lua.jpg" alt="Arte do HAGAVE com a lua e o logo HAGAVE" loading="lazy"></figure>
       </div>
   </section>
 
@@ -349,14 +369,28 @@ footer img{height:20px;width:auto;opacity:.75}
 <button class="player-pill" type="button" id="player-pill">♪ Ouvir HAGAVE</button>
 
 <dialog class="painel" id="downloads" aria-labelledby="dl-titulo">
-  <div class="painel-topo gutter"><div class="wrap"><h2 id="dl-titulo" class="mono" style="margin:0;font-size:12px">Downloads · fotos em alta</h2><button class="fechar" type="button" id="fechar-dl">Fechar ✕</button></div></div>
+  <div class="painel-topo gutter"><div class="wrap"><h2 id="dl-titulo" class="mono" style="margin:0;font-size:12px">Downloads</h2><button class="fechar" type="button" id="fechar-dl">Fechar ✕</button></div></div>
   <div class="painel-corpo gutter"><div class="wrap">
+    <div class="abas" role="tablist" aria-label="Tipo de download">
+      <button type="button" role="tab" id="aba-fotos" aria-controls="dl-fotos" aria-selected="true">Fotos press kit</button>
+      <button type="button" role="tab" id="aba-logo" aria-controls="dl-logo" aria-selected="false">Logo</button>
+    </div>
+    <div id="dl-fotos" role="tabpanel" aria-labelledby="aba-fotos">
     <p class="nota" style="margin-top:0">Fotos em alta resolução para flyers, line-ups e imprensa.</p>
     <div class="dl-topo">
       <button class="btn" type="button" id="baixar-todas" disabled>Baixar todas (.zip)</button>
       <span class="status" id="dl-status" role="status">Preparando downloads…</span>
     </div>
     <div class="dl-grade" id="dl-grade"></div>
+    </div>
+    <div id="dl-logo" role="tabpanel" aria-labelledby="aba-logo" hidden>
+    <p class="nota" style="margin-top:0">Logo oficial HAGAVE para flyers, line-ups e telões. Use o branco em fundo escuro e o preto em fundo claro.</p>
+    <div class="dl-grade">
+      <div class="dl-item"><img src="logo/HAGAVE_logo_branco_previa.jpg" alt="Prévia Branco · fundo transparente" loading="lazy" style="object-position:center"><div class="info"><span>Branco · fundo transparente<br><small class="mono" style="color:var(--texto-2)">PNG 1200×335</small></span><a class="btn sec" href="logo/HAGAVE_logo_branco.png" download="HAGAVE_logo_branco.png">Baixar</a></div></div>
+      <div class="dl-item"><img src="logo/HAGAVE_logo_preto_previa.jpg" alt="Prévia Preto · fundo transparente" loading="lazy" style="object-position:center"><div class="info"><span>Preto · fundo transparente<br><small class="mono" style="color:var(--texto-2)">PNG 1200×335</small></span><a class="btn sec" href="logo/HAGAVE_logo_preto.png" download="HAGAVE_logo_preto.png">Baixar</a></div></div>
+      <div class="dl-item"><img src="logo/HAGAVE_logo_fundo_preto_9x16_previa.jpg" alt="Prévia Fundo preto · story 9:16" loading="lazy" style="object-position:center"><div class="info"><span>Fundo preto · story 9:16<br><small class="mono" style="color:var(--texto-2)">PNG 750×1334</small></span><a class="btn sec" href="logo/HAGAVE_logo_fundo_preto_9x16.png" download="HAGAVE_logo_fundo_preto_9x16.png">Baixar</a></div></div>
+    </div>
+    </div>
   </div></div>
 </dialog>
 
@@ -465,6 +499,10 @@ footer img{height:20px;width:auto;opacity:.75}
   var z=document.createElement("a");z.className=todas.className;z.id="baixar-todas";z.textContent="Baixar todas (.zip · 14 MB)";z.href="HAGAVE_presskit_fotos.zip";z.setAttribute("download","HAGAVE_presskit_fotos.zip");
   todas.replaceWith(z);
   status.textContent="Toque em Baixar para salvar uma foto, ou baixe todas em um ZIP.";
+
+  // ---------- abas do painel ----------
+  var abas=[['aba-fotos','dl-fotos'],['aba-logo','dl-logo']];
+  abas.forEach(function(a){ document.getElementById(a[0]).addEventListener('click',function(){ abas.forEach(function(b){ var on=b===a; document.getElementById(b[0]).setAttribute('aria-selected',String(on)); document.getElementById(b[1]).hidden=!on; }); }); });
 
   // ---------- painel Downloads: abre só pelo ícone de grade (ou link direto #downloads) ----------
   var painel=document.getElementById('downloads'),abrir=document.getElementById('abrir-dl');
