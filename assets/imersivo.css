@@ -23,7 +23,7 @@ html.mundo-3d .abertura::after{background:linear-gradient(180deg,rgba(17,12,10,0
 /* cartões que ficavam com fundo chapado agora deixam o mundo aparecer de leve */
 html.mundo-3d .ficha div,
 html.mundo-3d .links a,
-html.mundo-3d .c3d{background:rgba(17,12,10,.86)}
+html.mundo-3d .c3d{background:rgba(17,12,10,.93)}
 html.mundo-3d .links a:hover{background:rgba(24,18,16,.92)}
 html.mundo-3d footer{background:linear-gradient(180deg,rgba(17,12,10,0),rgba(17,12,10,.7))}
 
@@ -48,3 +48,31 @@ html.mundo-3d footer{background:linear-gradient(180deg,rgba(17,12,10,0),rgba(17,
   .mundo{transition:none}
   .cab nav a::after,.trilho-item i,.trilho-item b,.trilho-item em{transition:none}
 }
+
+/* ?diag: painel de diagnóstico (toque para fechar) */
+.diag{position:fixed;left:8px;top:8px;z-index:9999;margin:0;max-width:calc(100vw - 16px);padding:10px 12px;background:rgba(0,0,0,.88);color:#efe8e2;border:1px solid #c23d7a;font:11px/1.45 'IBM Plex Mono',ui-monospace,Consolas,monospace;white-space:pre-wrap;word-break:break-word;cursor:pointer}
+
+/* ===== CELULAR: o mundo como protagonista =====
+   No celular o conteúdo ocupava a tela inteira e o 3D só aparecia em frestas.
+   Aqui: a abertura vira um "cartão" depois de alguns segundos (ou no primeiro toque/rolagem),
+   cada capítulo ganha uma "tela de respiro" onde só o mundo aparece, e as grades de fotos
+   ficam com margens e espaços maiores para o mundo emoldurá-las. */
+@media (max-width:860px){
+  html.mundo-3d .abertura-midia{transition:clip-path 1.6s cubic-bezier(.2,.8,.2,1),transform 1.6s cubic-bezier(.2,.8,.2,1);clip-path:inset(0 0 0 0)}
+  html.mundo-3d.revela .abertura-midia{clip-path:inset(4% 5% 46% 5%);-webkit-mask-image:linear-gradient(180deg,#000 40%,rgba(0,0,0,.5) 50%,transparent 56%);mask-image:linear-gradient(180deg,#000 40%,rgba(0,0,0,.5) 50%,transparent 56%)}
+  html.mundo-3d.revela .abertura::after{background:none}
+  html.mundo-3d main section{padding-top:max(72px,42svh)}
+  html.mundo-3d main #bio{padding-top:max(72px,34svh)}
+  html.mundo-3d main section{border-top-color:transparent}
+  html.mundo-3d .era-fotos,html.mundo-3d .galeria{gap:22px;padding-inline:5vw}
+  html.mundo-3d .sets{gap:22px}
+  html.mundo-3d footer{padding-top:30svh}
+}
+@media (max-width:860px) and (prefers-reduced-motion:reduce){html.mundo-3d .abertura-midia{transition:none}}
+
+/* camada da frente: poeira e rasgos de glitch por cima de tudo, bem fraquinha, sem pegar cliques */
+.frente{position:fixed;left:0;top:0;width:100%;height:100vh;height:100lvh;z-index:12;pointer-events:none;display:none}
+html.mundo-3d .frente{display:block}
+
+/* contraste: textos pequenos/cinza ganham um véu escuro local quando o mundo passa por trás (WCAG AA) */
+html.mundo-3d .nota{background:rgba(17,12,10,.82);padding:3px 8px;box-shadow:0 0 16px 6px rgba(17,12,10,.7)}

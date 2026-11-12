@@ -19,17 +19,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/",
-    "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.13.0/index.js",
-    "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.13.0/ScrollTrigger.js",
-    "lenis": "https://cdn.jsdelivr.net/npm/lenis@1.3.4/dist/lenis.mjs"
-  }
-}
-</script>
 <style>
 /* Layout: editorial minimalista. Cabeçalho fino fixo; abertura = loop oficial 16:9 + "After the noise"; seções com títulos grandes; aba Downloads com fotos em alta. Paleta do SoundCloud do HAGAVE. Tema único escuro de propósito. */
 :root{
@@ -739,14 +728,22 @@ html:not(.tocando) .df-vinil{filter:saturate(.4) brightness(.8)}
   au.addEventListener('playing',function(){ comecou=true; });
   function tocar(){ noInicio(); var p=au.play(); if(p&&p.catch)p.catch(function(){}); return p; }
   function pausar(){ if(!au.paused)au.pause(); }
-  function noDisco(){ prepara(); if(actx&&actx.state==='suspended')actx.resume(); if(au.paused){ parouNoDisco=false; tocar(); } else { parouNoDisco=true; pausar(); } }
+  // o iPhone às vezes deixa o áudio "suspenso/interrompido" depois de uma pausa: sem isto a música volta muda
+  function destrava(){ if(actx&&actx.state!=='running'){ try{ var r=actx.resume(); if(r&&r.catch)r.catch(function(){}); }catch(e){} } }
+  // um toque no disco = uma troca só (ignora um segundo disparo em menos de 350 ms).
+  // Pausou: fica pausado (nada mais religa sozinho). Play: continua de onde parou (só o 1º play pula para 1:27).
+  var ultimaTroca=0;
+  function noDisco(){ var agora=Date.now(); if(agora-ultimaTroca<350)return; ultimaTroca=agora;
+    prepara(); destrava();
+    if(au.paused){ parouNoDisco=false; tocar(); } else { parouNoDisco=true; pausar(); } }
   window.__musica={au:au,tocar:tocar,pausar:pausar,analisador:function(){return an}}; // o mundo 3D lê o mesmo analisador
   function fmt(t){ t=Math.max(0,Math.floor(t||0)); return Math.floor(t/60)+':'+('0'+t%60).slice(-2); }
   function tempo(){ mTempo.textContent=fmt(au.currentTime)+' / '+fmt(au.duration||332); }
   au.addEventListener('timeupdate',tempo); au.addEventListener('loadedmetadata',tempo);
-  au.addEventListener('play',function(){ raiz.classList.add('tocando'); df.setAttribute('aria-label','Pausar This Is America'); anima();
+  au.addEventListener('play',function(){ destrava(); raiz.classList.add('tocando'); df.setAttribute('aria-label','Pausar This Is America'); anima();
     document.querySelectorAll('video').forEach(function(v){ if(v.id!=='loop'&&!v.paused&&!v.muted)v.pause(); }); });
   au.addEventListener('pause',function(){ raiz.classList.remove('tocando'); df.setAttribute('aria-label','Tocar This Is America'); });
+  setInterval(function(){ var t=!au.paused; if(raiz.classList.contains('tocando')!==t){ raiz.classList.toggle('tocando',t); df.setAttribute('aria-label',(t?'Pausar':'Tocar')+' This Is America'); } },1000);
   au.addEventListener('ended',function(){ au.currentTime=INICIO; tocar(); });
   df.addEventListener('click',noDisco);
   var cena=document.getElementById('disco-cena');
@@ -763,7 +760,7 @@ html:not(.tocando) .df-vinil{filter:saturate(.4) brightness(.8)}
     // o áudio do analisador precisa ser criado e destravado dentro do gesto (iPhone exige)
     prepara(); if(actx){ actx.onstatechange=verifica; if(actx.state==='suspended'){ var r=actx.resume(); if(r&&r.catch)r.catch(function(){}); } }
     var alvo=e.target&&e.target.closest?e.target:null; if(alvo&&(alvo.closest('#disco-flutua,#disco-cena,.set-tela,iframe')||alvo.closest('video:not(#loop)')))return; // o próprio botão/vídeo cuida (o loop do topo não conta)
-    if(au.paused&&!comecou)tocar(); // depois que já tocou uma vez, quem pausa (disco ou vídeo) manda
+    if(au.paused&&!comecou&&!parouNoDisco)tocar(); // depois que já tocou uma vez, quem pausa (disco ou vídeo) manda
     else verifica();
   }
   function verifica(){ if(!au.paused&&actx&&actx.state==='running')desliga(); }

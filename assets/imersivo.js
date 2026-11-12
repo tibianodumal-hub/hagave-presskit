@@ -6,8 +6,29 @@
 
    Tudo aqui é opcional: se a internet não baixar as bibliotecas, se o aparelho não tiver
    WebGL2 ou se a pessoa pedir menos movimento, o site continua igual ao de antes.
-   Bibliotecas (versões fixas, via import map no index.html): three 0.186.0, gsap 3.13.0, lenis 1.3.4.
+   Bibliotecas (versões fixas, endereços completos do jsDelivr "+esm", sem import map — assim funciona
+   também em iPhone antigo e nos navegadores de dentro do Instagram/TikTok): three 0.186.0, gsap 3.13.0, lenis 1.3.4.
+   Os addons do three (+esm) importam exatamente /npm/three@0.186.0/+esm, a mesma instância usada aqui.
+
+   Diagnóstico: o resultado fica em <html data-mundo="...">; com ?diag no endereço aparece um painel.
 */
+const CDN = 'https://cdn.jsdelivr.net/npm/';
+const URL_THREE = CDN + 'three@0.186.0/+esm';
+const addon = nome => CDN + 'three@0.186.0/examples/jsm/postprocessing/' + nome + '.js/+esm';
+const URL_GSAP = CDN + 'gsap@3.13.0/+esm';
+const URL_ST = CDN + 'gsap@3.13.0/ScrollTrigger/+esm';
+const URL_LENIS = CDN + 'lenis@1.3.4/+esm';
+
+const DIAG = { motivo: 'carregando', erro: '', three: false, gsap: false, lenis: false, webgl2: null, gpu: '', fps: 0, tier: '', dpr: 0, pontoMax: 0 };
+window.__diag = DIAG;
+function marcaMundo(motivo, detalhe) {
+  DIAG.motivo = motivo;
+  if (detalhe) DIAG.erro = String(detalhe && detalhe.message || detalhe).slice(0, 160);
+  document.documentElement.dataset.mundo = motivo;
+  try { console.info('[HAGAVE 3D] ' + motivo + (detalhe ? ' — ' + DIAG.erro : '')); } catch (e) {}
+}
+addEventListener('error', e => { DIAG.erro = String(e.message || e.error || 'erro').slice(0, 160); });
+addEventListener('unhandledrejection', e => { DIAG.erro = String((e.reason && e.reason.message) || e.reason || 'promessa').slice(0, 160); });
 
 const raiz = document.documentElement;
 const reduz = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -23,7 +44,7 @@ const TIER = (estreitoMQ.matches || !fino || fraco || econ) ? 'leve' : 'alto';
 --------------------------------------------------------------------------- */
 const CAPITULOS = [
   { id: 'topo',       nome: 'After the noise',
-    camera: { pos: [0, 1.5, 17],     alvo: [0, 0.35, 0],    fov: 38, mobile: { pos: [0, 2.4, 21], alvo: [0, 0.2, 0], fov: 52 } },
+    camera: { pos: [0, 1.5, 17],     alvo: [0, 0.35, 0],    fov: 38, mobile: { pos: [0, 2.6, 19], alvo: [0, 3.4, 0], fov: 54 } },
     mundo:  { brilho: 1.0,  perto: 7,   longe: 62, giro: 0.16, onda: 0.55, bloom: 0.75 } },
   { id: 'bio',        nome: 'Bio',
     camera: { pos: [-11, 5.2, 9.5],  alvo: [3, -0.8, -1],   fov: 42, mobile: { pos: [-7.5, 7.5, 12.5], alvo: [0, -0.6, 0], fov: 54 } },
@@ -172,10 +193,12 @@ async function iniciaMovimento() {
   if (reduz) return;
   let gsap, ScrollTrigger, Lenis;
   try {
-    [{ gsap }, { ScrollTrigger }, { default: Lenis }] = await Promise.all([
-      import('gsap'), import('gsap/ScrollTrigger'), import('lenis')
-    ]);
-  } catch (e) { return; }
+    [{ gsap }, { ScrollTrigger }, { default: Lenis }] = await Promise.all([import(URL_GSAP), import(URL_ST), import(URL_LENIS)]);
+    DIAG.gsap = true; DIAG.lenis = true;
+  } catch (e) { DIAG.erro = 'gsap/lenis: ' + (e && e.message || e); return; }
+  try { iniciaMovimentoCom(gsap, ScrollTrigger, Lenis); } catch (e) { DIAG.erro = 'movimento: ' + (e && e.message || e); }
+}
+function iniciaMovimentoCom(gsap, ScrollTrigger, Lenis) {
   gsap.registerPlugin(ScrollTrigger);
 
   const lenis = new Lenis({ lerp: 0.1, smoothWheel: true, wheelMultiplier: 0.95, autoRaf: false, anchors: false,
@@ -234,7 +257,7 @@ function temWebGL2() {
 
 const VERT_COMUM = /* glsl */`
   uniform float uTime, uEscala, uBrilho, uPerto, uLonge, uPulso, uGrave, uMedio, uAgudo, uRot, uOnda;
-  uniform float uGlitch, uGSemente, uGDir;   // glitch: intensidade (0..1), sorteio do passo, direção da rolagem
+  uniform float uGlitch, uGSemente, uGDir, uPontoMax;   // glitch: intensidade (0..1), sorteio do passo, direção da rolagem
   uniform vec3 uGlA, uGlB;                   // magenta #ff2a6d e ciano #05d9e8 (os mesmos do glitch do site)
   varying vec3 vCor; varying float vAlfa;
   float hash(float n){ return fract(sin(n) * 43758.5453); }
@@ -264,7 +287,7 @@ const VERT_COMUM = /* glsl */`
     }
     gl_Position = projectionMatrix * mv;
     float px = tam * uEscala / max(prof, 0.001);
-    gl_PointSize = clamp(px, 1.0, 26.0);
+    gl_PointSize = clamp(px, 1.0, uPontoMax);
     float nevoa = 1.0 - smoothstep(uPerto, uLonge, prof);
     float pertoDemais = smoothstep(0.25, 1.4, prof);
     float sub = clamp(px / 1.6, 0.25, 1.0);       // ponto menor que 1,6 px: apaga um pouco em vez de piscar
@@ -371,18 +394,29 @@ const GLITCH_TELA = {
 async function iniciaMundo() {
   const canvas = document.getElementById('mundo');
   if (!canvas) return;
-  if (!temWebGL2()) { raiz.classList.add('sem-3d'); return; }
+  DIAG.webgl2 = temWebGL2();
+  if (!DIAG.webgl2) { raiz.classList.add('sem-3d'); marcaMundo('sem-webgl2'); return; }
 
   let THREE;
-  try { THREE = await import('three'); } catch (e) { raiz.classList.add('sem-3d'); return; }
+  try { THREE = await import(URL_THREE); DIAG.three = true; }
+  catch (e) { raiz.classList.add('sem-3d'); marcaMundo('import-falhou', e); return; }
 
   let renderer;
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, powerPreference: TIER === 'alto' ? 'high-performance' : 'low-power' });
-  } catch (e) { raiz.classList.add('sem-3d'); return; }
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, powerPreference: TIER === 'alto' ? 'high-performance' : 'default' });
+  } catch (e) { raiz.classList.add('sem-3d'); marcaMundo('erro:renderer', e); return; }
+  try {
+    const gl = renderer.getContext();
+    const info = gl.getExtension('WEBGL_debug_renderer_info');
+    DIAG.gpu = String(info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)).slice(0, 80);
+    const faixa = gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE);
+    DIAG.pontoMax = faixa ? faixa[1] : 64;
+  } catch (e) { DIAG.pontoMax = 64; }
+  DIAG.tier = TIER;
 
   const DPR_MAX = TIER === 'alto' ? 1.75 : 1.25;
   let dpr = Math.min(window.devicePixelRatio || 1, DPR_MAX);
+  DIAG.dpr = dpr;
   renderer.setPixelRatio(dpr);
   renderer.setSize(innerWidth, innerHeight, false);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -396,6 +430,7 @@ async function iniciaMundo() {
     uTime: { value: 0 }, uEscala: { value: 1 }, uBrilho: { value: 1 }, uPerto: { value: 6 }, uLonge: { value: 60 },
     uPulso: { value: 0 }, uGrave: { value: 0 }, uMedio: { value: 0 }, uAgudo: { value: 0 }, uRot: { value: 0 }, uOnda: { value: 0.6 },
     uSulco: { value: new THREE.Color('#efe8e2') }, uMagenta: { value: new THREE.Color('#c23d7a') }, uBranco: { value: new THREE.Color('#fff4ee') },
+    uPontoMax: { value: Math.max(1, Math.min(26, DIAG.pontoMax || 26)) },
     uGlitch: { value: 0 }, uGSemente: { value: 0 }, uGDir: { value: 0 },
     uGlA: { value: new THREE.Color('#ff2a6d') }, uGlB: { value: new THREE.Color('#05d9e8') }
   };
@@ -476,9 +511,8 @@ async function iniciaMundo() {
   if (TIER === 'alto') {
     try {
       const [{ EffectComposer }, { RenderPass }, { UnrealBloomPass }, { OutputPass }, { ShaderPass }, { AfterimagePass }] = await Promise.all([
-        import('three/addons/postprocessing/EffectComposer.js'), import('three/addons/postprocessing/RenderPass.js'),
-        import('three/addons/postprocessing/UnrealBloomPass.js'), import('three/addons/postprocessing/OutputPass.js'),
-        import('three/addons/postprocessing/ShaderPass.js'), import('three/addons/postprocessing/AfterimagePass.js')
+        import(addon('EffectComposer')), import(addon('RenderPass')), import(addon('UnrealBloomPass')),
+        import(addon('OutputPass')), import(addon('ShaderPass')), import(addon('AfterimagePass'))
       ]);
       composer = new EffectComposer(renderer);
       composer.addPass(new RenderPass(cena, camera));
@@ -510,6 +544,7 @@ async function iniciaMundo() {
   estreitoMQ.addEventListener('change', montaCurvas);
 
   const N = CAPITULOS.length - 1;
+  const CALMO_POS = new THREE.Vector3(0, 6.5, 21), CALMO_ALVO = new THREE.Vector3(0, -0.3, 0);
   const vPos = new THREE.Vector3(), vAlvo = new THREE.Vector3(), vDir = new THREE.Vector3(), vLado = new THREE.Vector3(), CIMA = new THREE.Vector3(0, 1, 0);
   function estadoMundo(p) {
     const i = clamp(Math.floor(p), 0, N), k = Math.min(N, i + 1), t = suave(clamp(p - i, 0, 1));
@@ -641,14 +676,18 @@ async function iniciaMundo() {
 
   function desenha(dt) {
     const exato = maestro.exato;
-    // com "menos movimento" a câmera fica parada no capítulo mais próximo
-    suavizado = reduz ? Math.round(exato) : damp(suavizado, exato, 4.2, dt);
+    // "menos movimento": a câmera acompanha a rolagem bem devagar (sem trancos)
+    suavizado = damp(suavizado, exato, reduz ? 1.6 : 4.2, dt);
     if (Math.abs(suavizado - exato) < 1e-4) suavizado = exato;
     const s = clamp(suavizado, 0, N);
     const w = estadoMundo(s);
 
     const som = reduz ? { tocando: false, pulso: 0, grave: 0, medio: 0, agudo: 0 } : audio.atualiza(dt, tempo);
-    if (!reduz) {
+    if (reduz) {
+      // modo calmo: disco gira devagar, partículas derivam, nada pisca, nada pula
+      tempo += dt * 0.4;
+      rot += dt * w.giro * 0.5;
+    } else {
       tempo += dt;
       rot += dt * (w.giro + (som.tocando ? 0.42 : 0)) + giroExtra * dt;
       giroExtra *= Math.exp(-dt * 1.6);                 // inércia do giro com o dedo
@@ -661,6 +700,7 @@ async function iniciaMundo() {
 
     curvaPos.getPoint(s / N, vPos);
     curvaAlvo.getPoint(s / N, vAlvo);
+    if (reduz) { vPos.lerp(CALMO_POS, 0.7); vAlvo.lerp(CALMO_ALVO, 0.7); }   // modo calmo: viagem com amplitude pequena
     if (orbita) vPos.sub(vAlvo).applyAxisAngle(CIMA, orbita).add(vAlvo);
     vDir.subVectors(vAlvo, vPos).normalize();
     vLado.crossVectors(vDir, CIMA).normalize();
@@ -669,7 +709,7 @@ async function iniciaMundo() {
     camera.lookAt(vAlvo);
     const g = atualizaGlitch(dt, tempo, som);
     if (g > 0.05 && tempo < glitch.fim) camera.position.addScaledVector(vDir, (Math.sin(glitch.semente * 12.9898) * 0.5) * g * 0.8);   // tranco curto em profundidade
-    const fov = w.fov - som.pulso * 0.6;
+    const fov = reduz ? lerp(w.fov, 46, 0.7) : w.fov - som.pulso * 0.6;
     if (Math.abs(camera.fov - fov) > 0.001) { camera.fov = fov; camera.updateProjectionMatrix(); }
 
     U.uTime.value = tempo;
@@ -694,10 +734,14 @@ async function iniciaMundo() {
     else renderer.render(cena, camera);
   }
 
+  const META = reduz ? 1 / 30 : 0;       // modo calmo: 30 quadros por segundo bastam
+  let fpsT = 0, fpsN = 0;
   function quadro(agora) {
     raf = 0;
     if (!rodando || pausado()) { rodando = false; return; }
-    const dt = antes ? Math.min((agora - antes) / 1000, 1 / 30) : 1 / 60;
+    if (META && antes && (agora - antes) < META * 1000 - 2) { raf = requestAnimationFrame(quadro); return; }
+    fpsN++; if (agora - fpsT > 1000) { DIAG.fps = Math.round(fpsN * 1000 / Math.max(1, agora - fpsT)); fpsT = agora; fpsN = 0; }
+    const dt = antes ? Math.min((agora - antes) / 1000, 1 / 20) : 1 / 60;
     const bruto = antes ? (agora - antes) : 16;
     antes = agora;
     desenha(dt);
@@ -715,17 +759,14 @@ async function iniciaMundo() {
     raf = requestAnimationFrame(quadro);
   }
   function liga() {
-    if (reduz) { pedeQuadro(); return; }
     if (rodando || pausado()) return;
     rodando = true; antes = 0; raf = requestAnimationFrame(quadro);
   }
-  // modo "menos movimento": desenha só quando algo muda (rolagem/tamanho)
   function pedeQuadro() {
-    if (!reduz || pendente || pausado()) return;
+    if (rodando || pendente || pausado()) return;
     pendente = true;
-    requestAnimationFrame(() => { pendente = false; desenha(0); });
+    requestAnimationFrame(() => { pendente = false; desenha(1 / 60); });
   }
-  if (reduz) maestro.aoMudar(pedeQuadro);
 
   document.addEventListener('visibilitychange', () => { if (!document.hidden) liga(); });
   if (painel) {
@@ -737,16 +778,129 @@ async function iniciaMundo() {
     e.preventDefault();
     contextoPerdido = true; rodando = false;
     raiz.classList.remove('mundo-3d'); raiz.classList.add('sem-3d');
+    marcaMundo('erro:contexto-webgl-perdido');
   });
 
   // aquece os shaders antes de mostrar (evita travadinha no primeiro quadro)
-  try { if (renderer.compileAsync && renderer.extensions.has('KHR_parallel_shader_compile')) await renderer.compileAsync(cena, camera); else renderer.compile(cena, camera); } catch (e) {}
-  desenha(1 / 60);
+  try {
+    if (renderer.compileAsync && renderer.extensions.has('KHR_parallel_shader_compile')) {
+      await Promise.race([renderer.compileAsync(cena, camera), new Promise(r => setTimeout(r, 2500))]);
+    } else renderer.compile(cena, camera);
+  } catch (e) {}
+  try { desenha(1 / 60); }
+  catch (e) { raiz.classList.add('sem-3d'); marcaMundo('erro:primeiro-quadro', e); return; }
+  const gl = renderer.getContext();
+  if (gl.isContextLost && gl.isContextLost()) { raiz.classList.add('sem-3d'); marcaMundo('erro:contexto-webgl-perdido'); return; }
   raiz.classList.add('mundo-3d');
+  iniciaFrente();
+  marcaMundo(reduz ? 'reduzido' : 'ok');   // reduzido = funcionando no modo calmo
   liga();
 
   window.__mundo = { tier: TIER, glitch: () => glitch.nivel, forcaGlitch: (f = 0.9, d = 0.3) => { glitch.ultimaRajada = -9; rajada(tempo, f, d); }, quadros: () => quadrosDesenhados, perdeContexto: () => { const x = renderer.getContext().getExtension('WEBGL_lose_context'); if (x) x.loseContext(); }, info: () => ({ ...renderer.info.render, dpr, bloom: !!composer, pontos: cena.children.reduce((s, o) => s + o.geometry.attributes.aSemente.count, 0) }) };
 }
 
-iniciaMovimento();
-iniciaMundo();
+/* ---------------------------------------------------------------------------
+   Abertura no celular: depois de 3,5 s (ou no primeiro toque/rolagem) o loop vira um cartão
+   no alto e o disco aparece embaixo, por trás do "After the noise".
+--------------------------------------------------------------------------- */
+(() => {
+  let feito = false;
+  const revela = () => { if (feito) return; feito = true; raiz.classList.add('revela'); ['scroll', 'touchstart', 'pointerdown'].forEach(ev => removeEventListener(ev, revela, true)); };
+  setTimeout(revela, reduz ? 0 : 3500);
+  ['scroll', 'touchstart', 'pointerdown'].forEach(ev => addEventListener(ev, revela, { passive: true, capture: true }));
+})();
+
+/* ---------------------------------------------------------------------------
+   Camada da frente (canvas 2D por cima do conteúdo, sem cliques): poeira fina que acompanha
+   a rolagem e, nas rajadas de glitch do mundo, rasgos finos magenta/ciano. Bem fraca para não
+   atrapalhar a leitura. "Menos movimento": poeira lenta e nenhum rasgo.
+--------------------------------------------------------------------------- */
+function iniciaFrente() {
+  if (document.querySelector('.frente')) return;
+  const c = document.createElement('canvas');
+  c.className = 'frente'; c.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(c);
+  const g = c.getContext('2d');
+  if (!g) return;
+  const N = TIER === 'alto' ? 220 : 130;
+  const pr = Math.min(window.devicePixelRatio || 1, TIER === 'alto' ? 1.5 : 1);
+  let W = 0, H = 0;
+  const ajusta = () => { W = innerWidth; H = innerHeight; c.width = Math.round(W * pr); c.height = Math.round(H * pr); g.setTransform(pr, 0, 0, pr, 0, 0); };
+  ajusta(); addEventListener('resize', ajusta, { passive: true });
+  const P = Array.from({ length: N }, () => ({ x: Math.random(), y: Math.random(), z: 0.25 + Math.random() * 0.75, f: Math.random() * 6.28, m: Math.random() < 0.12 }));
+  const painel = document.getElementById('downloads');
+  let antes = 0, t = 0, raf = 0;
+  function quadro(agora) {
+    raf = 0;
+    if (document.hidden || (painel && painel.open) || !raiz.classList.contains('mundo-3d')) { g.clearRect(0, 0, W, H); return; }
+    const dt = antes ? Math.min((agora - antes) / 1000, 0.05) : 0.016; antes = agora;
+    t += dt * (reduz ? 0.35 : 1);
+    const gl = (!reduz && window.__mundo && window.__mundo.glitch) ? window.__mundo.glitch() : 0;
+    const rol = scrollY;
+    g.clearRect(0, 0, W, H);
+    // faixas rasgadas desta rajada (as mesmas para poeira e linhas)
+    const semente = Math.floor(t * 16);
+    const rnd = k => { const v = Math.sin(semente * 12.9898 + k * 78.233) * 43758.5453; return v - Math.floor(v); };
+    for (const p of P) {
+      let y = ((p.y * H - rol * p.z * 0.35 - t * 9 * p.z) % H + H) % H;
+      let x = (p.x * W + Math.sin(t * 0.3 + p.f) * 10 * p.z);
+      if (gl > 0.1) { const faixa = Math.floor(y / H * 14); if (rnd(faixa) < gl * 0.5) x += (rnd(faixa + 50) - 0.5) * 70 * gl; }
+      const a = (0.06 + 0.16 * p.z) * (0.6 + 0.4 * Math.sin(t * 1.3 + p.f));
+      g.fillStyle = p.m ? `rgba(194,61,122,${a})` : `rgba(239,232,226,${a})`;
+      const r = 0.5 + p.z * 1.1;
+      g.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+    if (gl > 0.15) {
+      const n = 2 + Math.floor(gl * 4);
+      for (let i = 0; i < n; i++) {
+        const y = rnd(i + 3) * H, w = (0.2 + rnd(i + 7) * 0.45) * W, x = rnd(i + 11) * (W - w), h = 1 + Math.floor(rnd(i + 13) * 2);
+        g.fillStyle = `rgba(255,42,109,${0.28 * gl})`; g.fillRect(x - 3 * gl, y, w, h);
+        g.fillStyle = `rgba(5,217,232,${0.24 * gl})`; g.fillRect(x + 3 * gl, y + h + 1, w, h);
+      }
+    }
+    raf = requestAnimationFrame(quadro);
+  }
+  const liga = () => { if (!raf) { antes = 0; raf = requestAnimationFrame(quadro); } };
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) liga(); });
+  if (painel) new MutationObserver(() => { if (!painel.open) liga(); }).observe(painel, { attributes: true, attributeFilter: ['open'] });
+  liga();
+}
+
+iniciaMovimento().catch(e => { DIAG.erro = 'movimento: ' + (e && e.message || e); });
+iniciaMundo().catch(e => { raiz.classList.add('sem-3d'); marcaMundo('erro:' + ((e && e.message) || e).toString().slice(0, 60), e); });
+
+/* ---------------------------------------------------------------------------
+   ?diag — painel de diagnóstico (para o HV mandar print do celular)
+--------------------------------------------------------------------------- */
+if (/[?&]diag\b/.test(location.search)) {
+  const caixa = document.createElement('pre');
+  caixa.className = 'diag';
+  caixa.setAttribute('role', 'status');
+  caixa.title = 'Toque para fechar';
+  document.body.appendChild(caixa);
+  let fechado = false;
+  caixa.addEventListener('click', () => { fechado = true; caixa.remove(); });
+  const ua = navigator.userAgent;
+  const curto = (ua.match(/(iPhone OS [\d_]+|Android [\d.]+|Windows NT [\d.]+|Mac OS X [\d_]+)/) || [''])[0] + ' · ' +
+    ((ua.match(/(Instagram|FBAN|FBAV|TikTok|SamsungBrowser\/[\d.]+|CriOS\/[\d]+|FxiOS\/[\d]+|EdgA?\/[\d]+|Chrome\/[\d]+|Version\/[\d.]+ Mobile|Safari)/) || [''])[0]);
+  const sim = v => v ? 'sim' : 'não';
+  const mapa = !!(window.HTMLScriptElement && HTMLScriptElement.supports && HTMLScriptElement.supports('importmap'));
+  const pinta = () => {
+    if (fechado) return;
+    const m = window.__musica && window.__musica.au;
+    caixa.textContent = [
+      'HAGAVE 3D · diag (toque p/ fechar)',
+      'mundo: ' + DIAG.motivo,
+      'ua: ' + curto,
+      'webgl2: ' + (DIAG.webgl2 === null ? '?' : sim(DIAG.webgl2)) + ' · gpu: ' + (DIAG.gpu || '?'),
+      'import map nativo: ' + sim(mapa) + ' (não é mais necessário)',
+      'tier: ' + (DIAG.tier || TIER) + ' · dpr: ' + (DIAG.dpr || '?') + '/' + (window.devicePixelRatio || 1) + ' · ponto máx: ' + DIAG.pontoMax,
+      'menos movimento: ' + sim(reduz) + ' · economia de dados: ' + sim(econ),
+      'fps: ' + DIAG.fps + ' · quadros: ' + (window.__mundo ? window.__mundo.quadros() : 0),
+      'three: ' + sim(DIAG.three) + ' · gsap: ' + sim(DIAG.gsap) + ' · lenis: ' + sim(DIAG.lenis),
+      'música: ' + (m ? (m.paused ? 'pausada' : 'tocando') + ' ' + m.currentTime.toFixed(1) + 's' : '?'),
+      'último erro: ' + (DIAG.erro || '—')
+    ].join('\n');
+  };
+  pinta(); setInterval(pinta, 500);
+}
