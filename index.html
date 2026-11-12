@@ -732,7 +732,12 @@ html:not(.tocando) .df-vinil{filter:saturate(.4) brightness(.8)}
   var raiz=document.documentElement,au=document.getElementById('faixa'),INICIO=87,actx=null,an=null,dados=null,parouNoDisco=false;
   var mTempo=document.getElementById('m-tempo'),df=document.getElementById('disco-flutua');
   function prepara(){ if(actx)return; try{ var AC=window.AudioContext||window.webkitAudioContext; actx=new AC(); var src=actx.createMediaElementSource(au); an=actx.createAnalyser(); an.fftSize=256; an.smoothingTimeConstant=.78; src.connect(an); an.connect(actx.destination); dados=new Uint8Array(an.frequencyBinCount); }catch(e){ actx=null; an=null; } }
-  function tocar(){ var p=au.play(); if(p&&p.catch)p.catch(function(){}); return p; }
+  // começa sempre em 1:27 (o #t=87 do endereço não funciona em todo navegador)
+  var comecou=false;
+  function noInicio(){ if(!comecou&&au.currentTime<INICIO-1){ try{ au.currentTime=INICIO; }catch(e){} } }
+  au.addEventListener('loadedmetadata',noInicio);
+  au.addEventListener('playing',function(){ comecou=true; });
+  function tocar(){ noInicio(); var p=au.play(); if(p&&p.catch)p.catch(function(){}); return p; }
   function pausar(){ if(!au.paused)au.pause(); }
   function noDisco(){ prepara(); if(actx&&actx.state==='suspended')actx.resume(); if(au.paused){ parouNoDisco=false; tocar(); } else { parouNoDisco=true; pausar(); } }
   window.__musica={au:au,tocar:tocar,pausar:pausar,analisador:function(){return an}}; // o mundo 3D lê o mesmo analisador
@@ -748,14 +753,27 @@ html:not(.tocando) .df-vinil{filter:saturate(.4) brightness(.8)}
   cena.addEventListener('click',noDisco); cena.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); noDisco(); } });
   // qualquer vídeo com som (painel, sets) pausa a música
   document.addEventListener('play',function(e){ var v=e.target; if(v.tagName==='VIDEO'&&v.id!=='loop'&&!v.muted)pausar(); },true);
-  // começa sozinha; se o navegador bloquear som sem interação, começa no primeiro toque/tecla em qualquer lugar
-  var EVS=['pointerdown','keydown','touchend'];
-  function primeiro(e){ EVS.forEach(function(ev){ document.removeEventListener(ev,primeiro,true); });
-    prepara(); if(actx&&actx.state==='suspended')actx.resume();
-    if(e.target&&e.target.closest&&e.target.closest('#disco-flutua,#disco-cena,.set-tela,video'))return;
-    if(au.paused&&!parouNoDisco)tocar(); }
-  EVS.forEach(function(ev){ document.addEventListener(ev,primeiro,true); });
-  var tentativa=au.play(); if(tentativa&&tentativa.catch)tentativa.catch(function(){});
+  // começa sozinha; se o navegador bloquear som sem interação, tenta de novo a cada toque/clique/tecla
+  // (eventos que o navegador aceita como "gesto") e também ao rolar (só funciona quando o navegador já libera som).
+  // Para de tentar quando a música realmente começa ou quando a pessoa pausa no disco.
+  var GESTOS=['pointerup','touchend','click','keydown','mousedown'],ROLAGEM=['scroll','wheel','touchmove'],ultimaRolagem=0;
+  function desliga(){ GESTOS.forEach(function(ev){ document.removeEventListener(ev,gesto,true); }); ROLAGEM.forEach(function(ev){ removeEventListener(ev,rolou,{passive:true,capture:true}); }); }
+  function gesto(e){
+    if(parouNoDisco){ desliga(); return; }
+    // o áudio do analisador precisa ser criado e destravado dentro do gesto (iPhone exige)
+    prepara(); if(actx){ actx.onstatechange=verifica; if(actx.state==='suspended'){ var r=actx.resume(); if(r&&r.catch)r.catch(function(){}); } }
+    var alvo=e.target&&e.target.closest?e.target:null; if(alvo&&(alvo.closest('#disco-flutua,#disco-cena,.set-tela,iframe')||alvo.closest('video:not(#loop)')))return; // o próprio botão/vídeo cuida (o loop do topo não conta)
+    if(au.paused&&!comecou)tocar(); // depois que já tocou uma vez, quem pausa (disco ou vídeo) manda
+    else verifica();
+  }
+  function verifica(){ if(!au.paused&&actx&&actx.state==='running')desliga(); }
+  function rolou(){ var agora=Date.now(); if(agora-ultimaRolagem<900||parouNoDisco||comecou||!au.paused)return; ultimaRolagem=agora; tocar(); }
+  GESTOS.forEach(function(ev){ document.addEventListener(ev,gesto,true); });
+  ROLAGEM.forEach(function(ev){ addEventListener(ev,rolou,{passive:true,capture:true}); });
+  // tocou: para de tentar pela rolagem; os gestos continuam só até o analisador (visualizador/3D) estar ligado
+  au.addEventListener('playing',function(){ ROLAGEM.forEach(function(ev){ removeEventListener(ev,rolou,{passive:true,capture:true}); }); verifica(); });
+  if(actx)actx.onstatechange=verifica;
+  var tentativa=tocar();
 
   // visualizador: anel de barras em volta do disco + equalizador
   var vD=document.getElementById('disco-viz'),eq=document.getElementById('eq'),eqI=[];
@@ -783,7 +801,7 @@ html:not(.tocando) .df-vinil{filter:saturate(.4) brightness(.8)}
       pausar(); b.closest('.set').classList.add('com-video');
       var f=document.createElement('iframe');
       f.src='https://www.youtube-nocookie.com/embed/'+b.dataset.yt+'?autoplay=1&rel=0&modestbranding=1&playsinline=1';
-      f.title=b.getAttribute('aria-label');f.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';f.allowFullscreen=true;
+      f.title=b.getAttribute('aria-label');f.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';
       b.appendChild(f);b.querySelector('.set-play').remove();b.querySelector('.set-dur').remove();b.style.cursor='default';
     });
   });

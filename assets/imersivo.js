@@ -23,25 +23,25 @@ const TIER = (estreitoMQ.matches || !fino || fraco || econ) ? 'leve' : 'alto';
 --------------------------------------------------------------------------- */
 const CAPITULOS = [
   { id: 'topo',       nome: 'After the noise',
-    camera: { pos: [0, 1.5, 17],     alvo: [0, 0.35, 0],    fov: 38 },
+    camera: { pos: [0, 1.5, 17],     alvo: [0, 0.35, 0],    fov: 38, mobile: { pos: [0, 2.4, 21], alvo: [0, 0.2, 0], fov: 52 } },
     mundo:  { brilho: 1.0,  perto: 7,   longe: 62, giro: 0.16, onda: 0.55, bloom: 0.75 } },
   { id: 'bio',        nome: 'Bio',
-    camera: { pos: [-11, 5.2, 9.5],  alvo: [3, -0.8, -1],   fov: 42 },
+    camera: { pos: [-11, 5.2, 9.5],  alvo: [3, -0.8, -1],   fov: 42, mobile: { pos: [-7.5, 7.5, 12.5], alvo: [0, -0.6, 0], fov: 54 } },
     mundo:  { brilho: 0.55, perto: 4,   longe: 46, giro: 0.12, onda: 0.5,  bloom: 0.5 } },
   { id: 'trajetoria', nome: 'Trajetória',
-    camera: { pos: [7.4, 0.8, 4.6],  alvo: [-3, -0.05, -3.4], fov: 50 },
+    camera: { pos: [7.4, 0.8, 4.6],  alvo: [-3, -0.05, -3.4], fov: 50, mobile: { pos: [5, 1.5, 7.5], alvo: [-1, 0, -2], fov: 62 } },
     mundo:  { brilho: 0.62, perto: 1.4, longe: 30, giro: 0.2,  onda: 0.4,  bloom: 0.55 } },
   { id: 'music',      nome: 'Music',
-    camera: { pos: [-7.5, 8.5, 9.5], alvo: [-12.5, -2.2, -1.5], fov: 40 },
+    camera: { pos: [-7.5, 8.5, 9.5], alvo: [-12.5, -2.2, -1.5], fov: 40, mobile: { pos: [0.01, 15, 5.5], alvo: [0, 0, 0], fov: 56 } },
     mundo:  { brilho: 0.72, perto: 4,   longe: 44, giro: 0.3,  onda: 0.7,  bloom: 0.7 } },
   { id: 'sets',       nome: 'Sets',
-    camera: { pos: [-6, 2.3, -11],   alvo: [10, -1.6, -34], fov: 48 },
+    camera: { pos: [-6, 2.3, -11],   alvo: [10, -1.6, -34], fov: 48, mobile: { pos: [-5, 3.2, -6], alvo: [8, -1.6, -30], fov: 60 } },
     mundo:  { brilho: 0.85, perto: 3,   longe: 55, giro: 0.14, onda: 1.15, bloom: 0.6 } },
   { id: 'fotos',      nome: 'Fotos',
-    camera: { pos: [0, 7, 30],       alvo: [0, -0.5, -4],   fov: 34 },
+    camera: { pos: [0, 7, 30],       alvo: [0, -0.5, -4],   fov: 34, mobile: { pos: [0, 9, 32], alvo: [0, 0, 0], fov: 46 } },
     mundo:  { brilho: 0.36, perto: 6,   longe: 34, giro: 0.1,  onda: 0.45, bloom: 0.4 } },
   { id: 'booking',    nome: 'Booking',
-    camera: { pos: [0.01, 19, 2.6],  alvo: [0, 0, 0],       fov: 40 },
+    camera: { pos: [0.01, 19, 2.6],  alvo: [0, 0, 0],       fov: 40, mobile: { pos: [0.01, 17, 2.5], alvo: [0, 0, 0], fov: 56 } },
     mundo:  { brilho: 0.8,  perto: 8,   longe: 46, giro: 0.15, onda: 0.6,  bloom: 0.75 } }
 ];
 
@@ -234,11 +234,34 @@ function temWebGL2() {
 
 const VERT_COMUM = /* glsl */`
   uniform float uTime, uEscala, uBrilho, uPerto, uLonge, uPulso, uGrave, uMedio, uAgudo, uRot, uOnda;
+  uniform float uGlitch, uGSemente, uGDir;   // glitch: intensidade (0..1), sorteio do passo, direção da rolagem
+  uniform vec3 uGlA, uGlB;                   // magenta #ff2a6d e ciano #05d9e8 (os mesmos do glitch do site)
   varying vec3 vCor; varying float vAlfa;
   float hash(float n){ return fract(sin(n) * 43758.5453); }
-  void finaliza(vec3 p, float tam, vec3 cor, float alfa){
+  void finaliza(vec3 p, float tam, vec3 cor, float alfa, float sem){
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
     float prof = -mv.z;
+    if (uGlitch > 0.001) {
+      // GLITCH ESPACIAL: o mundo é fatiado em faixas horizontais da tela; algumas faixas
+      // "rasgam" para o lado e são empurradas em profundidade (perto/longe), na direção da rolagem.
+      vec4 c0 = projectionMatrix * mv;
+      vec2 ndc = c0.xy / max(c0.w, 0.001);
+      float faixa = floor((ndc.y * 0.5 + 0.5) * 16.0 + hash(uGSemente) * 4.0);
+      float hf = hash(faixa * 7.13 + uGSemente * 31.7);
+      float rasga = step(1.0 - uGlitch * 0.6, hf);
+      float longe = smoothstep(uPerto, uLonge, prof);
+      mv.x += rasga * ((hf - 0.5) * 2.0 + uGDir * 0.6) * uGlitch * prof * 0.09;
+      mv.z += rasga * (hash(faixa + uGSemente * 3.3) - 0.5) * uGlitch * prof * 0.45;
+      // separação de cor por partícula: metade desliza para um lado tingida de magenta, metade para o outro em ciano;
+      // mais forte nas bordas da tela e no fundo
+      float lado = step(0.5, fract(sem * 13.37)) * 2.0 - 1.0;
+      float borda = 0.35 + 0.65 * abs(ndc.x) + 0.6 * longe;
+      mv.x += lado * uGlitch * prof * 0.012 * borda;
+      float lum = dot(cor, vec3(0.333));
+      vec3 tinta = (lado > 0.0 ? uGlA : uGlB) * lum * 2.2;
+      cor = mix(cor, tinta, clamp(uGlitch * (0.45 + 0.5 * rasga) * borda, 0.0, 0.9));
+      prof = -mv.z;
+    }
     gl_Position = projectionMatrix * mv;
     float px = tam * uEscala / max(prof, 0.001);
     gl_PointSize = clamp(px, 1.0, 26.0);
@@ -283,7 +306,7 @@ const VERT_DISCO = VERT_COMUM + /* glsl */`
     float faisca = step(0.993 - uAgudo * 0.03, hash(aSemente * 97.0 + floor(uTime * 14.0)));
     cor += mix(uBranco, uMagenta, step(0.5, aSemente)) * faisca * uAgudo * 2.2;
     tam *= 1.0 + uPulso * 0.45 * queda + faisca * uAgudo * 1.5;
-    finaliza(p, tam, cor, alfa);
+    finaliza(p, tam, cor, alfa, aSemente);
   }
 `;
 
@@ -301,7 +324,7 @@ const VERT_CAMPO = VERT_COMUM + /* glsl */`
     float crista = smoothstep(0.35, 1.2, alt);
     vec3 cor = mix(uSulco * 0.55, uMagenta * 1.4, crista);
     float clareira = smoothstep(6.8, 9.5, d);      // espaço livre embaixo do disco
-    finaliza(p, 0.07, cor, 0.8 * clareira);
+    finaliza(p, 0.07, cor, 0.8 * clareira, aSemente);
   }
 `;
 
@@ -315,9 +338,35 @@ const VERT_POEIRA = VERT_COMUM + /* glsl */`
     p.x += sin(uTime * 0.2 + aSemente * 30.0) * 0.4;
     float pisca = 0.5 + 0.5 * sin(uTime * (1.0 + aSemente * 3.0) + aSemente * 50.0);
     vec3 cor = mix(uBranco, uMagenta, step(0.82, aSemente)) * (0.35 + 0.65 * pisca + uAgudo * 1.5);
-    finaliza(p, 0.05 + aSemente * 0.04, cor, 0.5);
+    finaliza(p, 0.05 + aSemente * 0.04, cor, 0.5, aSemente);
   }
 `;
+
+// glitch na tela do mundo (só no canvas, nunca no texto): faixas que rasgam, separação RGB mais forte
+// nas bordas e na direção da rolagem, linhas de varredura que tremem.
+const GLITCH_TELA = {
+  uniforms: { tDiffuse: { value: null }, uG: { value: 0 }, uSemente: { value: 0 }, uDir: { value: 0 } },
+  vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: /* glsl */`
+    uniform sampler2D tDiffuse; uniform float uG, uSemente, uDir; varying vec2 vUv;
+    float h(float n){ return fract(sin(n) * 43758.5453); }
+    void main(){
+      vec2 uv = vUv;
+      float faixa = floor(uv.y * 22.0 + h(uSemente) * 5.0);
+      float hf = h(faixa * 3.17 + uSemente * 17.3);
+      float rasga = step(1.0 - uG * 0.45, hf);
+      uv.x += rasga * ((hf - 0.5) * 0.14 + uDir * 0.03) * uG;
+      vec2 c = vUv - 0.5;
+      float borda = 0.25 + dot(c, c) * 3.0;
+      vec2 off = vec2(uG * 0.012 * borda + rasga * 0.008 * uG + uDir * 0.004 * uG, 0.0);
+      vec4 base = texture2D(tDiffuse, uv);
+      float r = texture2D(tDiffuse, uv + off).r;
+      float b = texture2D(tDiffuse, uv - off).b;
+      vec3 col = vec3(r, base.g, b);
+      col *= 1.0 - uG * 0.22 * step(0.5, fract(vUv.y * 220.0 + h(uSemente + 1.0) * 9.0));
+      gl_FragColor = vec4(col, base.a);
+    }`
+};
 
 async function iniciaMundo() {
   const canvas = document.getElementById('mundo');
@@ -346,7 +395,9 @@ async function iniciaMundo() {
   const U = {
     uTime: { value: 0 }, uEscala: { value: 1 }, uBrilho: { value: 1 }, uPerto: { value: 6 }, uLonge: { value: 60 },
     uPulso: { value: 0 }, uGrave: { value: 0 }, uMedio: { value: 0 }, uAgudo: { value: 0 }, uRot: { value: 0 }, uOnda: { value: 0.6 },
-    uSulco: { value: new THREE.Color('#efe8e2') }, uMagenta: { value: new THREE.Color('#c23d7a') }, uBranco: { value: new THREE.Color('#fff4ee') }
+    uSulco: { value: new THREE.Color('#efe8e2') }, uMagenta: { value: new THREE.Color('#c23d7a') }, uBranco: { value: new THREE.Color('#fff4ee') },
+    uGlitch: { value: 0 }, uGSemente: { value: 0 }, uGDir: { value: 0 },
+    uGlA: { value: new THREE.Color('#ff2a6d') }, uGlB: { value: new THREE.Color('#05d9e8') }
   };
   const material = vert => new THREE.ShaderMaterial({
     uniforms: U, vertexShader: vert, fragmentShader: FRAG,
@@ -421,17 +472,21 @@ async function iniciaMundo() {
   }
 
   // --- pós-processamento (só no tier alto): bloom suave ---
-  let composer = null, bloom = null;
+  let composer = null, bloom = null, eco = null, passeGlitch = null;
   if (TIER === 'alto') {
     try {
-      const [{ EffectComposer }, { RenderPass }, { UnrealBloomPass }, { OutputPass }] = await Promise.all([
+      const [{ EffectComposer }, { RenderPass }, { UnrealBloomPass }, { OutputPass }, { ShaderPass }, { AfterimagePass }] = await Promise.all([
         import('three/addons/postprocessing/EffectComposer.js'), import('three/addons/postprocessing/RenderPass.js'),
-        import('three/addons/postprocessing/UnrealBloomPass.js'), import('three/addons/postprocessing/OutputPass.js')
+        import('three/addons/postprocessing/UnrealBloomPass.js'), import('three/addons/postprocessing/OutputPass.js'),
+        import('three/addons/postprocessing/ShaderPass.js'), import('three/addons/postprocessing/AfterimagePass.js')
       ]);
       composer = new EffectComposer(renderer);
       composer.addPass(new RenderPass(cena, camera));
       bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.7, 0.55, 0.12);
       composer.addPass(bloom);
+      // eco do quadro anterior (datamosh rápido) e o passe de glitch: só ligados durante uma rajada
+      eco = new AfterimagePass(0.0); eco.enabled = false; composer.addPass(eco);
+      passeGlitch = new ShaderPass(GLITCH_TELA); passeGlitch.enabled = false; composer.addPass(passeGlitch);
       composer.addPass(new OutputPass());
       composer.setSize(innerWidth, innerHeight);
     } catch (e) { composer = null; bloom = null; }
@@ -444,10 +499,9 @@ async function iniciaMundo() {
     const P = [], A = [];
     fovs = [];
     CAPITULOS.forEach(c => {
-      const alvo = new THREE.Vector3(...c.camera.alvo);
-      const pos = new THREE.Vector3(...c.camera.pos);
-      if (celular) pos.sub(alvo).multiplyScalar(1.28).add(alvo);  // celular: afasta a câmera para caber o mesmo enquadramento
-      P.push(pos); A.push(alvo); fovs.push(c.camera.fov + (celular ? 8 : 0));
+      // celular em pé: enquadramento próprio (o disco fica visível atrás do conteúdo, não cortado)
+      const cam = celular && c.camera.mobile ? c.camera.mobile : c.camera;
+      P.push(new THREE.Vector3(...cam.pos)); A.push(new THREE.Vector3(...cam.alvo)); fovs.push(cam.fov);
     });
     curvaPos = new THREE.CatmullRomCurve3(P, false, 'centripetal', 0.5);
     curvaAlvo = new THREE.CatmullRomCurve3(A, false, 'centripetal', 0.5);
@@ -465,9 +519,72 @@ async function iniciaMundo() {
     return o;
   }
 
-  // --- mouse/toque: leve paralaxe ---
+  // --- interação: mouse (PC), inclinação do celular, arrastar e tocar (celular) ---
+  // Nada aqui bloqueia a rolagem: todos os ouvintes são "passive" e nunca chamam preventDefault.
   let mx = 0, my = 0, px = 0, py = 0;
-  if (!reduz) addEventListener('pointermove', e => { mx = (e.clientX / innerWidth) * 2 - 1; my = (e.clientY / innerHeight) * 2 - 1; }, { passive: true });
+  let giroExtra = 0, orbita = 0, orbitaAlvo = 0, toque = 0;
+  if (!reduz) {
+    addEventListener('pointermove', e => {
+      if (e.pointerType !== 'mouse') return;
+      mx = (e.clientX / innerWidth) * 2 - 1; my = (e.clientY / innerHeight) * 2 - 1;
+    }, { passive: true });
+
+    // inclinação do aparelho -> mesma paralaxe da câmera (o "zero" acompanha devagar como a pessoa segura o celular)
+    let g0 = null, b0 = null, ultimaInclinacao = 0;
+    const inclinou = e => {
+      if (e.gamma == null || e.beta == null) return;
+      const agora = performance.now(), dt = ultimaInclinacao ? Math.min((agora - ultimaInclinacao) / 1000, 0.25) : 0;
+      ultimaInclinacao = agora;
+      if (g0 === null) { g0 = e.gamma; b0 = e.beta; }
+      g0 = damp(g0, e.gamma, 0.25, dt); b0 = damp(b0, e.beta, 0.25, dt);
+      mx = clamp((e.gamma - g0) / 18, -1, 1);
+      my = clamp((e.beta - b0) / 18, -1, 1);
+    };
+    let pediuInclinacao = false;
+    const ligaInclinacao = () => {
+      if (pediuInclinacao || fino || typeof DeviceOrientationEvent === 'undefined') return;
+      pediuInclinacao = true;
+      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        // iPhone: só pode pedir dentro de um toque. Se negar, segue sem inclinação.
+        DeviceOrientationEvent.requestPermission()
+          .then(r => { if (r === 'granted') addEventListener('deviceorientation', inclinou, { passive: true }); })
+          .catch(() => {});
+      } else addEventListener('deviceorientation', inclinou, { passive: true });
+    };
+    if (!fino && typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission !== 'function') ligaInclinacao();
+    ['touchend', 'click'].forEach(ev => document.addEventListener(ev, ligaInclinacao, { passive: true, capture: true }));
+
+    // arrastar o dedo na horizontal: gira o disco com inércia e orbita a câmera um pouco
+    let tx = 0, ty = 0, tUlt = 0, horizontal = null, moveu = false;
+    const ignora = el => !!(el && el.closest && el.closest('.sets, .aovivo, dialog, input, iframe'));
+    document.addEventListener('touchstart', e => {
+      const t = e.touches[0]; if (!t || e.touches.length > 1) return;
+      tx = t.clientX; ty = t.clientY; tUlt = t.clientX; horizontal = ignora(e.target) ? false : null; moveu = false;
+    }, { passive: true });
+    document.addEventListener('touchmove', e => {
+      const t = e.touches[0]; if (!t) return;
+      const dx = t.clientX - tx, dy = t.clientY - ty;
+      if (Math.abs(dx) > 6 || Math.abs(dy) > 6) moveu = true;
+      if (horizontal === null && (Math.abs(dx) > 10 || Math.abs(dy) > 10)) horizontal = Math.abs(dx) > Math.abs(dy) * 1.2;
+      if (horizontal) {
+        const passo = (t.clientX - tUlt) / innerWidth;
+        giroExtra += passo * 9;
+        orbitaAlvo = clamp(orbitaAlvo + passo * 1.6, -0.75, 0.75);
+      }
+      tUlt = t.clientX;
+    }, { passive: true });
+    // tocar num espaço vazio (fora de link/botão) solta uma onda no mundo
+    document.addEventListener('touchend', e => {
+      if (moveu) return;
+      if (e.target && e.target.closest && e.target.closest('a, button, input, video, iframe, [role="button"], dialog')) return;
+      toque = 1;
+    }, { passive: true });
+    document.addEventListener('click', e => {
+      if (!fino) return;
+      if (e.target && e.target.closest && e.target.closest('a, button, input, video, iframe, [role="button"], dialog')) return;
+      toque = 0.8;
+    }, { passive: true });
+  }
 
   // --- tamanho ---
   function tamanho() {
@@ -476,6 +593,7 @@ async function iniciaMundo() {
     renderer.setPixelRatio(dpr);
     renderer.setSize(innerWidth, innerHeight, false);
     if (composer) { composer.setPixelRatio(dpr); composer.setSize(innerWidth, innerHeight); }
+    montaCurvas();   // girar o celular troca o enquadramento (retrato/paisagem)
     pedeQuadro();
   }
   let ultimaLargura = innerWidth, ultimaAltura = innerHeight;
@@ -488,10 +606,38 @@ async function iniciaMundo() {
 
   // --- laço de desenho ---
   let suavizado = maestro.exato, tempo = reduz ? 14 : 0, rot = 0, antes = 0, raf = 0, rodando = false, pendente = false;
-  let somaDt = 0, quadros = 0, rebaixou = 0;
+  let somaDt = 0, quadros = 0, rebaixou = 0, quadrosDesenhados = 0;
   const painel = document.getElementById('downloads');
   const pausado = () => document.hidden || (painel && painel.open) || contextoPerdido;
   let contextoPerdido = false;
+
+  // --- GLITCH: rajadas curtas (80–300 ms), nunca constante ---
+  //  (a) sorteio a cada 4–9 s, sutil; (b) troca de capítulo, mais forte; (c) kick forte com a música;
+  //  (d) rolagem rápida rasga na direção do movimento. Máx. ~2,5 rajadas/s (abaixo do limite de 3 flashes/s).
+  //  Com "menos movimento": nenhum glitch.
+  const glitch = { nivel: 0, fim: 0, forca: 0, proxIdle: 3 + Math.random() * 4, ultimaRajada: -9, capitulo: -1, ultimoExato: maestro.exato, vel: 0, dir: 0, semente: 0 };
+  function rajada(t, forca, dur) {
+    if (reduz || t - glitch.ultimaRajada < 0.4) return;
+    glitch.forca = t < glitch.fim ? Math.max(forca, glitch.forca) : forca; glitch.ultimaRajada = t; glitch.fim = t + dur;
+  }
+  function atualizaGlitch(dt, t, som) {
+    if (reduz) return 0;
+    const ex = maestro.exato, d = ex - glitch.ultimoExato; glitch.ultimoExato = ex;
+    glitch.vel = damp(glitch.vel, dt > 0 ? Math.abs(d) / dt : 0, 8, dt);
+    if (Math.abs(d) > 1e-4) glitch.dir = Math.sign(d);
+    const cap = Math.round(ex);
+    if (glitch.capitulo !== -1 && cap !== glitch.capitulo) rajada(t, 0.95, 0.24 + Math.random() * 0.06);
+    glitch.capitulo = cap;
+    if (t > glitch.proxIdle) { rajada(t, 0.28 + Math.random() * 0.2, 0.08 + Math.random() * 0.1); glitch.proxIdle = t + 4 + Math.random() * 5; }
+    if (som.tocando && som.pulso > 0.8 && t - glitch.ultimaRajada > 1.1) rajada(t, 0.55, 0.12);
+    // degraus: a intensidade pula em passos (como o glitch do site, que usa steps())
+    let alvo = 0;
+    if (t < glitch.fim) alvo = glitch.forca * (0.55 + 0.45 * Math.floor(Math.random() * 3) / 2);
+    const porVelocidade = clamp((glitch.vel - 0.35) * 0.45, 0, 0.55);
+    glitch.nivel = Math.max(alvo, porVelocidade);
+    glitch.semente = Math.floor(t * 16) + (t < glitch.fim ? 0.37 : 0);
+    return glitch.nivel;
+  }
 
   function desenha(dt) {
     const exato = maestro.exato;
@@ -504,28 +650,46 @@ async function iniciaMundo() {
     const som = reduz ? { tocando: false, pulso: 0, grave: 0, medio: 0, agudo: 0 } : audio.atualiza(dt, tempo);
     if (!reduz) {
       tempo += dt;
-      rot += dt * (w.giro + (som.tocando ? 0.42 : 0));
+      rot += dt * (w.giro + (som.tocando ? 0.42 : 0)) + giroExtra * dt;
+      giroExtra *= Math.exp(-dt * 1.6);                 // inércia do giro com o dedo
+      orbitaAlvo = damp(orbitaAlvo, 0, 0.7, dt);        // a órbita volta devagar para o enquadramento do capítulo
+      orbita = damp(orbita, orbitaAlvo, 4, dt);
+      toque *= Math.exp(-dt * 3.2);
+      som.pulso = Math.max(som.pulso, toque);
       px = damp(px, mx, 2.2, dt); py = damp(py, my, 2.2, dt);
     }
 
     curvaPos.getPoint(s / N, vPos);
     curvaAlvo.getPoint(s / N, vAlvo);
+    if (orbita) vPos.sub(vAlvo).applyAxisAngle(CIMA, orbita).add(vAlvo);
     vDir.subVectors(vAlvo, vPos).normalize();
     vLado.crossVectors(vDir, CIMA).normalize();
     vPos.addScaledVector(vLado, px * 0.55).addScaledVector(CIMA, -py * 0.32);
     camera.position.copy(vPos);
     camera.lookAt(vAlvo);
+    const g = atualizaGlitch(dt, tempo, som);
+    if (g > 0.05 && tempo < glitch.fim) camera.position.addScaledVector(vDir, (Math.sin(glitch.semente * 12.9898) * 0.5) * g * 0.8);   // tranco curto em profundidade
     const fov = w.fov - som.pulso * 0.6;
     if (Math.abs(camera.fov - fov) > 0.001) { camera.fov = fov; camera.updateProjectionMatrix(); }
 
     U.uTime.value = tempo;
     U.uRot.value = rot;
-    U.uBrilho.value = w.brilho * (1 + som.grave * 0.25);
+    U.uBrilho.value = w.brilho * (1 + som.grave * 0.25) * (TIER === 'leve' ? 1.3 : 1);   // menos pontos no celular: cada um brilha mais
     U.uPerto.value = w.perto; U.uLonge.value = w.longe;
     U.uOnda.value = w.onda;
     U.uPulso.value = som.pulso; U.uGrave.value = som.grave; U.uMedio.value = som.medio; U.uAgudo.value = som.agudo;
-    U.uEscala.value = renderer.domElement.height / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2));
+    U.uEscala.value = (TIER === 'leve' ? 1.35 : 1) * renderer.domElement.height / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2));
+    quadrosDesenhados++;
 
+    U.uGlitch.value = g; U.uGSemente.value = glitch.semente; U.uGDir.value = glitch.dir;
+    if (passeGlitch) {
+      const ligado = g > 0.02;
+      passeGlitch.enabled = ligado; eco.enabled = ligado && g > 0.3;
+      passeGlitch.uniforms.uG.value = g; passeGlitch.uniforms.uSemente.value = glitch.semente; passeGlitch.uniforms.uDir.value = glitch.dir;
+      eco.damp = 0.82 * g;
+    }
+    // "quadro perdido": numa rajada forte, às vezes segura a imagem anterior por um quadro
+    if (g > 0.6 && Math.random() < 0.12) return;
     if (composer && bloom) { bloom.strength = w.bloom * (1 + som.pulso * 0.6); composer.render(); }
     else renderer.render(cena, camera);
   }
@@ -581,7 +745,7 @@ async function iniciaMundo() {
   raiz.classList.add('mundo-3d');
   liga();
 
-  window.__mundo = { tier: TIER, info: () => ({ ...renderer.info.render, dpr, bloom: !!composer, pontos: cena.children.reduce((s, o) => s + o.geometry.attributes.aSemente.count, 0) }) };
+  window.__mundo = { tier: TIER, glitch: () => glitch.nivel, forcaGlitch: (f = 0.9, d = 0.3) => { glitch.ultimaRajada = -9; rajada(tempo, f, d); }, quadros: () => quadrosDesenhados, perdeContexto: () => { const x = renderer.getContext().getExtension('WEBGL_lose_context'); if (x) x.loseContext(); }, info: () => ({ ...renderer.info.render, dpr, bloom: !!composer, pontos: cena.children.reduce((s, o) => s + o.geometry.attributes.aSemente.count, 0) }) };
 }
 
 iniciaMovimento();
