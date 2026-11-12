@@ -37,6 +37,10 @@ const estreitoMQ = matchMedia('(max-width: 860px)');
 const econ = !!(navigator.connection && navigator.connection.saveData);
 const fraco = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4;
 const TIER = (estreitoMQ.matches || !fino || fraco || econ) ? 'leve' : 'alto';
+// Regra única: celular/tablet = toque como ponteiro principal OU tela até 860 px.
+// Nesses aparelhos NÃO existe mundo 3D (nem baixa three/gsap/lenis): o loop do topo é o principal
+// e atrás do conteúdo fica só uma camada de textura com glitch (decisão do HV).
+const CELULAR = matchMedia('(pointer: coarse)').matches || innerWidth <= 860;
 
 /* ---------------------------------------------------------------------------
    Capítulos: cada seção do site é um ponto da viagem.
@@ -792,7 +796,6 @@ async function iniciaMundo() {
   const gl = renderer.getContext();
   if (gl.isContextLost && gl.isContextLost()) { raiz.classList.add('sem-3d'); marcaMundo('erro:contexto-webgl-perdido'); return; }
   raiz.classList.add('mundo-3d');
-  iniciaFrente();
   marcaMundo(reduz ? 'reduzido' : 'ok');   // reduzido = funcionando no modo calmo
   liga();
 
@@ -800,74 +803,100 @@ async function iniciaMundo() {
 }
 
 /* ---------------------------------------------------------------------------
-   Abertura no celular: depois de 3,5 s (ou no primeiro toque/rolagem) o loop vira um cartão
-   no alto e o disco aparece embaixo, por trás do "After the noise".
+   Celular/tablet: camada de textura com glitch no FUNDO (atrás do conteúdo, z-index 0).
+   Aparece só nos vãos e áreas transparentes; o loop do topo e as fotos ficam por cima, intactos.
+   Canvas 2D em baixa resolução: grão + linhas de varredura; de vez em quando (e em rolagem rápida)
+   uma rajada de 80–300 ms com faixas deslocadas e rasgos magenta/ciano. Sem clarão branco,
+   no máximo ~2,5 rajadas/s. "Menos movimento": textura parada, sem glitch.
 --------------------------------------------------------------------------- */
-(() => {
-  let feito = false;
-  const revela = () => { if (feito) return; feito = true; raiz.classList.add('revela'); ['scroll', 'touchstart', 'pointerdown'].forEach(ev => removeEventListener(ev, revela, true)); };
-  setTimeout(revela, reduz ? 0 : 3500);
-  ['scroll', 'touchstart', 'pointerdown'].forEach(ev => addEventListener(ev, revela, { passive: true, capture: true }));
-})();
-
-/* ---------------------------------------------------------------------------
-   Camada da frente (canvas 2D por cima do conteúdo, sem cliques): poeira fina que acompanha
-   a rolagem e, nas rajadas de glitch do mundo, rasgos finos magenta/ciano. Bem fraca para não
-   atrapalhar a leitura. "Menos movimento": poeira lenta e nenhum rasgo.
---------------------------------------------------------------------------- */
-function iniciaFrente() {
-  if (document.querySelector('.frente')) return;
+function iniciaFundoCelular() {
   const c = document.createElement('canvas');
-  c.className = 'frente'; c.setAttribute('aria-hidden', 'true');
-  document.body.appendChild(c);
-  const g = c.getContext('2d');
-  if (!g) return;
-  const N = TIER === 'alto' ? 220 : 130;
-  const pr = Math.min(window.devicePixelRatio || 1, TIER === 'alto' ? 1.5 : 1);
+  c.className = 'fundo-glitch'; c.setAttribute('aria-hidden', 'true');
+  document.body.insertBefore(c, document.body.firstChild);
+  const g = c.getContext('2d', { alpha: false });
+  if (!g) { DIAG.fundo = 'sem canvas 2D'; return; }
+  const ESC = 0.5;                       // meia resolução: barato e com cara de vídeo antigo
   let W = 0, H = 0;
-  const ajusta = () => { W = innerWidth; H = innerHeight; c.width = Math.round(W * pr); c.height = Math.round(H * pr); g.setTransform(pr, 0, 0, pr, 0, 0); };
-  ajusta(); addEventListener('resize', ajusta, { passive: true });
-  const P = Array.from({ length: N }, () => ({ x: Math.random(), y: Math.random(), z: 0.25 + Math.random() * 0.75, f: Math.random() * 6.28, m: Math.random() < 0.12 }));
-  const painel = document.getElementById('downloads');
-  let antes = 0, t = 0, raf = 0;
+  const base = document.createElement('canvas'), gb = base.getContext('2d');
+  function monta() {
+    W = Math.max(1, Math.round(innerWidth * ESC)); H = Math.max(1, Math.round(innerHeight * ESC));
+    c.width = W; c.height = H; base.width = W; base.height = H * 2;   // 2x de altura para rolar o grão
+    gb.fillStyle = '#110c0a'; gb.fillRect(0, 0, W, H * 2);
+    const img = gb.getImageData(0, 0, W, H * 2), d = img.data;
+    for (let k = 0; k < d.length; k += 4) {
+      const n = Math.random(), lin = ((k / 4 / W | 0) % 3 === 0) ? -5 : 0;   // grão + linha de varredura a cada 3 px
+      const v = n > 0.985 ? 26 : n * 9;
+      d[k] = 17 + v + lin; d[k + 1] = 12 + v * 0.9 + lin; d[k + 2] = 10 + v * 0.85 + lin;
+    }
+    gb.putImageData(img, 0, 0);
+    desenha(0);
+  }
+  let fim = 0, ultima = -9, forca = 0, proxima = 2 + Math.random() * 4, t = 0;
+  function rajada(f, dur) { if (reduz || t - ultima < 0.4) return; ultima = t; fim = t + dur; forca = f; }
+  function desenha(dt) {
+    t += dt;
+    const ativo = t < fim, gl = ativo ? forca * (0.55 + 0.45 * ((Math.random() * 3) | 0) / 2) : 0;
+    const off = reduz ? 0 : ((t * 24) | 0) % H;          // o grão "corre" devagar
+    g.drawImage(base, 0, off, W, H, 0, 0, W, H);
+    if (gl > 0) {
+      const semente = (t * 16) | 0;
+      const rnd = k => { const v = Math.sin(semente * 12.9898 + k * 78.233) * 43758.5453; return v - Math.floor(v); };
+      const faixas = 3 + ((gl * 6) | 0);
+      for (let i = 0; i < faixas; i++) {          // faixas do fundo deslocadas para o lado
+        const y = (rnd(i) * H) | 0, h = 1 + ((rnd(i + 20) * H * 0.06) | 0), dx = ((rnd(i + 40) - 0.5) * W * 0.25 * gl) | 0;
+        g.drawImage(c, 0, y, W, h, dx, y, W, h);
+      }
+      g.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 2 + ((gl * 4) | 0); i++) {   // rasgos RGB: magenta e ciano lado a lado
+        const y = (rnd(i + 60) * H) | 0, w = (0.25 + rnd(i + 70) * 0.6) * W, x = rnd(i + 80) * (W - w), h = 1 + ((rnd(i + 90) * 2) | 0);
+        g.fillStyle = `rgba(255,42,109,${0.35 * gl})`; g.fillRect(x - 2, y, w, h);
+        g.fillStyle = `rgba(5,217,232,${0.3 * gl})`; g.fillRect(x + 2, y + h, w, h);
+      }
+      g.globalCompositeOperation = 'source-over';
+      g.fillStyle = `rgba(0,0,0,${0.25 * gl})`;          // linhas de varredura tremendo
+      for (let y = (semente % 4); y < H; y += 4) g.fillRect(0, y, W, 1);
+    }
+    DIAG.fundoGlitch = gl;
+  }
+  let raf = 0, antes = 0, yAntes = scrollY, tAntes = performance.now();
   function quadro(agora) {
     raf = 0;
-    if (document.hidden || (painel && painel.open) || !raiz.classList.contains('mundo-3d')) { g.clearRect(0, 0, W, H); return; }
-    const dt = antes ? Math.min((agora - antes) / 1000, 0.05) : 0.016; antes = agora;
-    t += dt * (reduz ? 0.35 : 1);
-    const gl = (!reduz && window.__mundo && window.__mundo.glitch) ? window.__mundo.glitch() : 0;
-    const rol = scrollY;
-    g.clearRect(0, 0, W, H);
-    // faixas rasgadas desta rajada (as mesmas para poeira e linhas)
-    const semente = Math.floor(t * 16);
-    const rnd = k => { const v = Math.sin(semente * 12.9898 + k * 78.233) * 43758.5453; return v - Math.floor(v); };
-    for (const p of P) {
-      let y = ((p.y * H - rol * p.z * 0.35 - t * 9 * p.z) % H + H) % H;
-      let x = (p.x * W + Math.sin(t * 0.3 + p.f) * 10 * p.z);
-      if (gl > 0.1) { const faixa = Math.floor(y / H * 14); if (rnd(faixa) < gl * 0.5) x += (rnd(faixa + 50) - 0.5) * 70 * gl; }
-      const a = (0.06 + 0.16 * p.z) * (0.6 + 0.4 * Math.sin(t * 1.3 + p.f));
-      g.fillStyle = p.m ? `rgba(194,61,122,${a})` : `rgba(239,232,226,${a})`;
-      const r = 0.5 + p.z * 1.1;
-      g.fillRect(x - r, y - r, r * 2, r * 2);
-    }
-    if (gl > 0.15) {
-      const n = 2 + Math.floor(gl * 4);
-      for (let i = 0; i < n; i++) {
-        const y = rnd(i + 3) * H, w = (0.2 + rnd(i + 7) * 0.45) * W, x = rnd(i + 11) * (W - w), h = 1 + Math.floor(rnd(i + 13) * 2);
-        g.fillStyle = `rgba(255,42,109,${0.28 * gl})`; g.fillRect(x - 3 * gl, y, w, h);
-        g.fillStyle = `rgba(5,217,232,${0.24 * gl})`; g.fillRect(x + 3 * gl, y + h + 1, w, h);
-      }
+    if (document.hidden) return;
+    const ativo = t < fim;
+    // em repouso ~10 fps (só o grão correndo); durante a rajada ~25 fps
+    const passo = ativo ? 40 : 100;
+    if (agora - antes >= passo) {
+      const dt = antes ? Math.min((agora - antes) / 1000, 0.2) : 0.04; antes = agora;
+      if (t > proxima) { rajada(0.5 + Math.random() * 0.4, 0.08 + Math.random() * 0.22); proxima = t + 3 + Math.random() * 4; }
+      desenha(dt); DIAG.fps = Math.round(1000 / passo);
     }
     raf = requestAnimationFrame(quadro);
   }
-  const liga = () => { if (!raf) { antes = 0; raf = requestAnimationFrame(quadro); } };
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) liga(); });
-  if (painel) new MutationObserver(() => { if (!painel.open) liga(); }).observe(painel, { attributes: true, attributeFilter: ['open'] });
-  liga();
+  addEventListener('scroll', () => {   // rolagem rápida: rajada curta
+    const agora = performance.now(), v = Math.abs(scrollY - yAntes) / Math.max(1, agora - tAntes);
+    yAntes = scrollY; tAntes = agora;
+    if (v > 2.2) rajada(0.85, 0.12 + Math.random() * 0.1);
+  }, { passive: true });
+  let larg = innerWidth;
+  addEventListener('resize', () => { if (innerWidth !== larg || Math.abs(innerHeight * ESC - H) > 80) { larg = innerWidth; monta(); } }, { passive: true });
+  monta();
+  DIAG.fundo = reduz ? 'textura parada (menos movimento)' : 'textura + glitch';
+  window.__fundo = { rajada: (f = 0.9, d = 0.3) => { ultima = -9; rajada(f, d); }, nivel: () => DIAG.fundoGlitch || 0 };
+  if (!reduz) {
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && !raf) { antes = 0; raf = requestAnimationFrame(quadro); } });
+    raf = requestAnimationFrame(quadro);
+  }
 }
 
-iniciaMovimento().catch(e => { DIAG.erro = 'movimento: ' + (e && e.message || e); });
-iniciaMundo().catch(e => { raiz.classList.add('sem-3d'); marcaMundo('erro:' + ((e && e.message) || e).toString().slice(0, 60), e); });
+if (CELULAR) {
+  // celular/tablet: nada de WebGL, three, gsap ou lenis
+  DIAG.tier = 'celular';
+  marcaMundo('celular');
+  try { iniciaFundoCelular(); } catch (e) { DIAG.erro = 'fundo: ' + (e && e.message || e); }
+} else {
+  iniciaMovimento().catch(e => { DIAG.erro = 'movimento: ' + (e && e.message || e); });
+  iniciaMundo().catch(e => { raiz.classList.add('sem-3d'); marcaMundo('erro:' + ((e && e.message) || e).toString().slice(0, 60), e); });
+}
 
 /* ---------------------------------------------------------------------------
    ?diag — painel de diagnóstico (para o HV mandar print do celular)
@@ -899,6 +928,7 @@ if (/[?&]diag\b/.test(location.search)) {
       'fps: ' + DIAG.fps + ' · quadros: ' + (window.__mundo ? window.__mundo.quadros() : 0),
       'three: ' + sim(DIAG.three) + ' · gsap: ' + sim(DIAG.gsap) + ' · lenis: ' + sim(DIAG.lenis),
       'música: ' + (m ? (m.paused ? 'pausada' : 'tocando') + ' ' + m.currentTime.toFixed(1) + 's' : '?'),
+      'fundo celular: ' + (DIAG.fundo || '—') + (DIAG.fundo ? ' · glitch agora: ' + (DIAG.fundoGlitch || 0).toFixed(2) : ''),
       'último erro: ' + (DIAG.erro || '—')
     ].join('\n');
   };
