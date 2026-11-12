@@ -218,6 +218,7 @@ h2{font-weight:500;font-size:clamp(36px,6vw,72px);line-height:1;letter-spacing:-
 .set-rodape a:hover{border-color:#FF0033;color:#fff}
 @media (max-width:860px){.sets{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:84%;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px}.set{scroll-snap-align:start}}
 @media (prefers-reduced-motion:reduce){.set,.set-tela img,.set-play{transition:none}}
+.dl-video video{width:100%;aspect-ratio:9/16;object-fit:contain;background:#000;display:block}
 .dl-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
 .dl-item{background:var(--bg-2);display:grid;grid-template-rows:auto 1fr;min-width:0}
 .dl-item img{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:top}
@@ -260,7 +261,7 @@ footer img{height:20px;width:auto;opacity:.75}
     <nav aria-label="Seções">
       <a href="#bio">Bio</a><a href="#trajetoria">Trajetória</a><a href="#music">Music</a><a href="#sets">Sets</a><a href="#fotos">Fotos</a><a href="#booking">Booking</a>
     </nav>
-    <button class="grade-btn" type="button" id="abrir-dl" aria-label="Downloads: fotos em alta" aria-haspopup="dialog" title="Downloads"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><rect x="1" y="1" width="7.5" height="7.5"/><rect x="11.5" y="1" width="7.5" height="7.5"/><rect x="1" y="11.5" width="7.5" height="7.5"/><rect x="11.5" y="11.5" width="7.5" height="7.5"/></svg></button>
+    <button class="grade-btn" type="button" id="abrir-dl" aria-label="Downloads: fotos, logo e vídeos" aria-haspopup="dialog" title="Downloads"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><rect x="1" y="1" width="7.5" height="7.5"/><rect x="11.5" y="1" width="7.5" height="7.5"/><rect x="1" y="11.5" width="7.5" height="7.5"/><rect x="11.5" y="11.5" width="7.5" height="7.5"/></svg></button>
   </div>
 </header>
 
@@ -435,6 +436,7 @@ footer img{height:20px;width:auto;opacity:.75}
     <div class="abas" role="tablist" aria-label="Tipo de download">
       <button type="button" role="tab" id="aba-fotos" aria-controls="dl-fotos" aria-selected="true">Fotos press kit</button>
       <button type="button" role="tab" id="aba-logo" aria-controls="dl-logo" aria-selected="false">Logo</button>
+      <button type="button" role="tab" id="aba-videos" aria-controls="dl-videos" aria-selected="false">Vídeos</button>
     </div>
     <div id="dl-fotos" role="tabpanel" aria-labelledby="aba-fotos">
     <p class="nota" style="margin-top:0">Fotos em alta resolução para flyers, line-ups e imprensa.</p>
@@ -450,6 +452,16 @@ footer img{height:20px;width:auto;opacity:.75}
       <div class="dl-item"><img src="logo/HAGAVE_logo_branco_previa.jpg" alt="Prévia Branco · fundo transparente" loading="lazy" style="object-position:center"><div class="info"><span>Branco · fundo transparente<br><small class="mono" style="color:var(--texto-2)">PNG 1200×335</small></span><a class="btn sec" href="logo/HAGAVE_logo_branco.png" download="HAGAVE_logo_branco.png">Baixar</a></div></div>
       <div class="dl-item"><img src="logo/HAGAVE_logo_preto_previa.jpg" alt="Prévia Preto · fundo transparente" loading="lazy" style="object-position:center"><div class="info"><span>Preto · fundo transparente<br><small class="mono" style="color:var(--texto-2)">PNG 1200×335</small></span><a class="btn sec" href="logo/HAGAVE_logo_preto.png" download="HAGAVE_logo_preto.png">Baixar</a></div></div>
       <div class="dl-item"><img src="logo/HAGAVE_logo_fundo_preto_9x16_previa.jpg" alt="Prévia Fundo preto · story 9:16" loading="lazy" style="object-position:center"><div class="info"><span>Fundo preto · story 9:16<br><small class="mono" style="color:var(--texto-2)">PNG 750×1334</small></span><a class="btn sec" href="logo/HAGAVE_logo_fundo_preto_9x16.png" download="HAGAVE_logo_fundo_preto_9x16.png">Baixar</a></div></div>
+    </div>
+    </div>
+    <div id="dl-videos" role="tabpanel" aria-labelledby="aba-videos" hidden>
+    <p class="nota" style="margin-top:0">Vídeos ao vivo gravados na pista. Toque para assistir ou baixe para usar em divulgação.</p>
+    <div class="dl-grade dl-videos">
+      <div class="dl-item dl-video"><video src="videos/HAGAVE_video_openair_pista.mp4" poster="videos/HAGAVE_video_openair_pista.jpg" controls playsinline preload="none" aria-label="Open air · pista cheia"></video><div class="info"><span>Open air · pista cheia<br><small class="mono" style="color:var(--texto-2)">0:42 · MP4 1080×1920</small></span><a class="btn sec" href="videos/HAGAVE_video_openair_pista.mp4" download="HAGAVE_video_openair_pista.mp4">Baixar</a></div></div>
+      <div class="dl-item dl-video"><video src="videos/HAGAVE_video_club_azul.mp4" poster="videos/HAGAVE_video_club_azul.jpg" controls playsinline preload="none" aria-label="Club · luz azul"></video><div class="info"><span>Club · luz azul<br><small class="mono" style="color:var(--texto-2)">0:27 · MP4 1080×1920</small></span><a class="btn sec" href="videos/HAGAVE_video_club_azul.mp4" download="HAGAVE_video_club_azul.mp4">Baixar</a></div></div>
+      <div class="dl-item dl-video"><video src="videos/HAGAVE_video_origins.mp4" poster="videos/HAGAVE_video_origins.jpg" controls playsinline preload="none" aria-label="ORIGINS"></video><div class="info"><span>ORIGINS<br><small class="mono" style="color:var(--texto-2)">1:07 · MP4 1078×1266</small></span><a class="btn sec" href="videos/HAGAVE_video_origins.mp4" download="HAGAVE_video_origins.mp4">Baixar</a></div></div>
+      <div class="dl-item dl-video"><video src="videos/HAGAVE_video_openair_dia.mp4" poster="videos/HAGAVE_video_openair_dia.jpg" controls playsinline preload="none" aria-label="Open air · de dia"></video><div class="info"><span>Open air · de dia<br><small class="mono" style="color:var(--texto-2)">0:15 · MP4 1080×1920</small></span><a class="btn sec" href="videos/HAGAVE_video_openair_dia.mp4" download="HAGAVE_video_openair_dia.mp4">Baixar</a></div></div>
+      <div class="dl-item dl-video"><video src="videos/HAGAVE_video_day_set.mp4" poster="videos/HAGAVE_video_day_set.jpg" controls playsinline preload="none" aria-label="Day set"></video><div class="info"><span>Day set<br><small class="mono" style="color:var(--texto-2)">0:24 · MP4 1080×1920</small></span><a class="btn sec" href="videos/HAGAVE_video_day_set.mp4" download="HAGAVE_video_day_set.mp4">Baixar</a></div></div>
     </div>
     </div>
   </div></div>
@@ -516,7 +528,7 @@ footer img{height:20px;width:auto;opacity:.75}
         var pausado=!e.data||e.data.isPaused; tocando=!pausado;
         pst.innerHTML=tocando?'<b>●</b> Tocando agora':'<b>●</b> Toque em qualquer lugar para ouvir';
         if(tocando&&!querTocar){ c.pause(); return; }
-        if(tocando){ document.querySelectorAll('main video').forEach(function(v){ if(v.id!=='loop'&&!v.paused&&!v.muted)v.pause(); }); }
+        if(tocando){ document.querySelectorAll('video').forEach(function(v){ if(v.id!=='loop'&&!v.paused&&!v.muted)v.pause(); }); }
       });
     });
   };
@@ -574,19 +586,23 @@ footer img{height:20px;width:auto;opacity:.75}
   status.textContent="Toque em Baixar para salvar uma foto, ou baixe todas em um ZIP.";
 
   // ---------- abas do painel ----------
-  var abas=[['aba-fotos','dl-fotos'],['aba-logo','dl-logo']];
-  abas.forEach(function(a){ document.getElementById(a[0]).addEventListener('click',function(){ abas.forEach(function(b){ var on=b===a; document.getElementById(b[0]).setAttribute('aria-selected',String(on)); document.getElementById(b[1]).hidden=!on; }); }); });
+  var abas=[['aba-fotos','dl-fotos'],['aba-logo','dl-logo'],['aba-videos','dl-videos']];
+  function pausaPainel(){ document.querySelectorAll('#dl-videos video').forEach(function(v){ if(!v.paused)v.pause(); }); }
+  function mostraAba(a){ abas.forEach(function(b){ var on=b===a; document.getElementById(b[0]).setAttribute('aria-selected',String(on)); document.getElementById(b[1]).hidden=!on; }); if(a[1]!=='dl-videos')pausaPainel(); }
+  abas.forEach(function(a){ document.getElementById(a[0]).addEventListener('click',function(){ mostraAba(a); }); });
+  // um vídeo do painel por vez
+  document.querySelectorAll('#dl-videos video').forEach(function(v){ v.addEventListener('play',function(){ document.querySelectorAll('#dl-videos video').forEach(function(o){ if(o!==v&&!o.paused)o.pause(); }); }); });
 
   // ---------- painel Downloads: abre só pelo ícone de grade (ou link direto #downloads) ----------
   var painel=document.getElementById('downloads'),abrir=document.getElementById('abrir-dl');
   function abre(){ if(painel.open)return; if(painel.showModal)painel.showModal(); else painel.setAttribute('open',''); document.body.style.overflow='hidden'; }
   function fecha(){ if(painel.close)painel.close(); else {painel.removeAttribute('open');document.body.style.overflow='';} }
-  painel.addEventListener('close',function(){document.body.style.overflow='';if(location.hash==='#downloads')history.replaceState(null,'',location.pathname+location.search);abrir.focus()});
+  painel.addEventListener('close',function(){pausaPainel();document.body.style.overflow='';if(location.hash==='#downloads'||location.hash==='#videos')history.replaceState(null,'',location.pathname+location.search);abrir.focus()});
   abrir.addEventListener('click',abre);
   document.getElementById('fechar-dl').addEventListener('click',fecha);
   painel.addEventListener('click',function(e){if(e.target===painel)fecha()});
-  if(location.hash==='#downloads')abre();
-  addEventListener('hashchange',function(){if(location.hash==='#downloads')abre()});
+  function porHash(){ if(location.hash==='#downloads')abre(); else if(location.hash==='#videos'){ mostraAba(abas[2]); abre(); } }
+  porHash(); addEventListener('hashchange',porHash);
 })();
 </script>
 </body>
